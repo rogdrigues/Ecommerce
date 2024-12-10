@@ -3,6 +3,7 @@ import BookPage from "@/pages/user/book";
 import HomePage from "@/pages/user/home";
 import UserLayout from "router/layouts/user-layout";
 import ProtectedRoute from "router/guard/protected-route";
+import ErrorComponent from "@/components/ErrorComponent";
 
 const userRoutes = [
     {
@@ -11,6 +12,7 @@ const userRoutes = [
             <ProtectedRoute>
                 <UserLayout />
             </ProtectedRoute>,
+        errorElement: <ErrorComponent error="You are not authorized to access this page." />,
         children: [
             {
                 index: true,

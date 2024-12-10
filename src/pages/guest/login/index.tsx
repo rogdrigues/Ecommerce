@@ -5,6 +5,7 @@ import { loginAPI } from '@/services';
 import { useNotification } from '@/context/notification.context';
 import { useNavigate } from 'react-router-dom';
 import { Link } from 'react-router-dom';
+import { useAppContext } from '@/context/app.context';
 
 const layout = {
     labelCol: { span: 8 },
@@ -21,6 +22,7 @@ const LoginPage = () => {
     const [isSubmit, setIsSubmit] = useState(false);
     const notificationAPI = useNotification();
     const navigate = useNavigate();
+    const { setIsAuthenticated, setUser } = useAppContext();
 
     const onFinish = async (values: FieldType) => {
         setIsSubmit(true);
@@ -29,14 +31,20 @@ const LoginPage = () => {
             const response = await loginAPI(values.username, values.password);
 
             if (response && response.data) {
+                const { user, access_token } = response.data;
+
                 notificationAPI.success({
                     message: 'Thành công',
                     description: 'Đăng nhập thành công!',
                 });
+
                 setTimeout(() => {
+                    setIsAuthenticated(true);
+                    setUser(user);
+                    localStorage.setItem('access_token', access_token);
+
                     navigate('/');
                 }, 2000);
-
             } else {
                 notificationAPI.error({
                     message: 'Có lỗi xảy ra',
@@ -53,6 +61,7 @@ const LoginPage = () => {
             setIsSubmit(false);
         }
     };
+
 
     return (
         <div className="auth-container">
