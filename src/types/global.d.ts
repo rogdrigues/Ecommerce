@@ -9,14 +9,16 @@ declare global {
     }
 
     interface IUser {
-        user: {
-            email: string;
-            phone: string;
-            fullName: string;
-            role: string;
-            avatar: string;
-            id: string;
-        }
+        email: string;
+        phone: string;
+        fullName: string;
+        role: string;
+        avatar: string;
+        id: string;
+    }
+
+    interface IFetchAccount {
+        user: IUser;
     }
 
     interface IModelPaginate<T> {
@@ -29,7 +31,7 @@ declare global {
         results: T[]
     }
     interface ILogin {
-        accessToken: string;
+        access_token: string;
         user: IUser;
     }
     interface IRegister {
