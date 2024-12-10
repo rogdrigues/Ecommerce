@@ -1,7 +1,10 @@
-import { Button, Form, Input, Space, Divider, Typography } from 'antd';
+import { Button, Form, Input, Space, Divider } from 'antd';
 import { useState } from 'react';
+import 'styles/auth.scss';
+import { registerAPI } from '@/services';
+import { useNotification } from '@/context/notification.context';
+import { useNavigate, Link } from 'react-router-dom';
 
-const { Link } = Typography;
 
 const layout = {
     labelCol: { span: 8 },
@@ -9,7 +12,7 @@ const layout = {
 };
 
 type FieldType = {
-    name: string;
+    fullName: string;
     email: string;
     password: string;
     phone: string;
@@ -18,42 +21,43 @@ type FieldType = {
 const RegisterPage = () => {
     const [form] = Form.useForm();
     const [isSubmit, setIsSubmit] = useState(false);
+    const notificationAPI = useNotification();
+    const navigate = useNavigate();
 
-    const onFinish = (values: FieldType) => {
-        console.log(values);
+    const onFinish = async (values: FieldType) => {
+        setIsSubmit(true);
+
+        try {
+            const response = await registerAPI(values);
+
+            if (response && response.data) {
+                notificationAPI.success({
+                    message: 'Thành công',
+                    description: 'Đăng ký thành công!',
+                });
+                setTimeout(() => {
+                    setIsSubmit(false);
+                    navigate('/login');
+                }, 2000);
+            } else {
+                notificationAPI.error({
+                    message: 'Có lỗi xảy ra',
+                    description: response.message && Array.isArray(response.message) ? response.message[0] : response.message,
+                });
+            }
+        } catch (err) {
+            console.log(err);
+            notificationAPI.error({
+                message: 'Có lỗi xảy ra',
+                description: 'Đăng ký không thành công!',
+            });
+        }
     };
 
     return (
-        <div
-            style={{
-                display: 'flex',
-                justifyContent: 'center',
-                alignItems: 'center',
-                background: '#ccc',
-                height: '100vh',
-                width: '100vw',
-            }}
-        >
-            <div
-                style={{
-                    width: '100%',
-                    maxWidth: 600,
-                    background: '#fff',
-                    padding: '24px 48px',
-                    borderRadius: '8px',
-                    boxShadow: '0 0 10px rgba(0,0,0,0.1)',
-                }}
-            >
-                <h1
-                    style={{
-                        textAlign: 'left',
-                        marginBottom: '48px',
-                        fontSize: '36px',
-                        fontWeight: 'bold',
-                    }}
-                >
-                    Đăng ký
-                </h1>
+        <div className="auth-container">
+            <div className="auth-wrapper">
+                <h1 className="auth-title">Đăng ký</h1>
                 <Form
                     {...layout}
                     layout="vertical"
@@ -64,7 +68,7 @@ const RegisterPage = () => {
                 >
                     <Space direction="vertical" size="middle" style={{ width: '100%' }}>
                         <Form.Item
-                            name="name"
+                            name="fullName"
                             label="Họ tên"
                             rules={[{ required: true, message: 'Vui lòng nhập họ tên!' }]}
                         >
@@ -110,7 +114,14 @@ const RegisterPage = () => {
                         </Form.Item>
 
                         <Form.Item>
-                            <Button style={{ marginTop: '24px' }} block type="primary" htmlType="submit" size="large" loading={isSubmit}>
+                            <Button
+                                className="auth-button"
+                                block
+                                type="primary"
+                                htmlType="submit"
+                                size="large"
+                                loading={isSubmit}
+                            >
                                 Đăng ký
                             </Button>
                         </Form.Item>
@@ -119,11 +130,9 @@ const RegisterPage = () => {
 
                 <Divider orientation="center">OR</Divider>
 
-                <div style={{ textAlign: 'center', marginTop: '24px', fontSize: '16px' }}>
+                <div className="auth-footer">
                     Nếu đã có tài khoản, hãy{' '}
-                    <Link href="/login">
-                        Đăng nhập
-                    </Link>
+                    <Link to="/login">Đăng nhập</Link>
                 </div>
             </div>
         </div>
