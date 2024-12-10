@@ -2,7 +2,8 @@ import { AppContextProvider } from './context/app.context';
 import AppRouter from './router'
 import { NotificationProvider } from '@/context/notification.context';
 
-function App() {
+const App = () => {
+
   return (
     <NotificationProvider>
       <AppContextProvider>
