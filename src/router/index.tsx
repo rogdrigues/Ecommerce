@@ -4,6 +4,7 @@ import guestRoutes from "./routes/guest-routes";
 import userRoutes from "./routes/user-routes";
 import { useAppContext } from "@/context/app.context";
 import { fetchAccountAPI } from "@/services";
+import { PropagateLoader } from "react-spinners";
 
 const AppRouter = () => {
     const { isAuthenticated, setUser, setIsAuthenticated } = useAppContext();
@@ -23,13 +24,14 @@ const AppRouter = () => {
                 console.log("Error fetching account:", error);
                 setIsAuthenticated(false);
             } finally {
-                setIsLoading(false);
+                setTimeout(() => {
+                    setIsLoading(false);
+                }, 1000);
             }
         };
         fetchAccount();
     }, [setUser, setIsAuthenticated]);
 
-    // Chỉ tạo router sau khi đã xác định được trạng thái
     const router = useMemo(() => {
         return createBrowserRouter(
             isAuthenticated ? [...userRoutes] : [...guestRoutes],
@@ -46,9 +48,24 @@ const AppRouter = () => {
     }, [isAuthenticated]);
 
     if (isLoading) {
-        // Hiển thị màn hình loading, hoặc có thể là component spinner
-        return <div>Loading...</div>;
+        return (
+            <div
+                style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    height: "100vh",
+                }}
+            >
+                <PropagateLoader loading={isLoading} size={15} color="#32CD32" />
+                <p style={{ marginTop: "30px", fontSize: "16px", color: "#32CD32" }}>
+                    Đang tải, vui lòng chờ...
+                </p>
+            </div>
+        );
     }
+
 
     return (
         <RouterProvider router={router} />
