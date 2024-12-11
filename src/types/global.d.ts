@@ -40,5 +40,25 @@ declare global {
         fullName: string;
     }
 
+    interface IUserTable {
+        _id: string;
+        email: string;
+        fullName: string;
+        phone: string;
+        role: string;
+        avatar: string;
+        isActive: boolean;
+        createdAt: Date;
+        updatedAt: Date;
+    }
 
+    interface IModelPaginate<T> {
+        meta: {
+            current: number;
+            pageSize: number;
+            pages: number;
+            total: number;
+        },
+        result: T[]
+    }
 }
