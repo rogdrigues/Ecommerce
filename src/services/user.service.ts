@@ -13,3 +13,7 @@ export const registerAPI = (data: { fullName: string, email: string, password: s
 export const fetchAccountAPI = () => {
     return axios.get<IBackendRes<IFetchAccount>>(`${baseURL}/auth/account`);
 }
+
+export const logoutAPI = () => {
+    return axios.post<IBackendRes<IRegister>>(`${baseURL}/auth/logout`);
+}
