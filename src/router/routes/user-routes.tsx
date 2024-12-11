@@ -4,14 +4,20 @@ import HomePage from "@/pages/user/home";
 import UserLayout from "router/layouts/user-layout";
 import ProtectedRoute from "router/guard/protected-route";
 import ErrorComponent from "@/components/ErrorComponent";
+import RoleBasedRoute from "router/guard/role-based-route";
+import AdminLayout from "router/layouts/admin-layout";
+import ManageOrderPage from "@/pages/admin/order";
+import ManageBookPage from "@/pages/admin/book";
+import ManageUserPage from "@/pages/admin/user";
 
-const userRoutes = [
+const routes = [
     {
         path: "/",
-        element:
+        element: (
             <ProtectedRoute>
                 <UserLayout />
-            </ProtectedRoute>,
+            </ProtectedRoute>
+        ),
         errorElement: <ErrorComponent error="You are not authorized to access this page." />,
         children: [
             {
@@ -19,15 +25,43 @@ const userRoutes = [
                 element: <HomePage />
             },
             {
-                path: "/book",
+                path: "book",
                 element: <BookPage />
             },
             {
-                path: "/about",
+                path: "about",
                 element: <AboutPage />
             }
         ]
+    },
+    {
+        path: "/admin",
+        element: (
+            <ProtectedRoute>
+                <RoleBasedRoute requiredRoles={["admin"]}>
+                    <AdminLayout />
+                </RoleBasedRoute>
+            </ProtectedRoute>
+        ),
+        children: [
+            {
+                path: "book",
+                element: <ManageBookPage />
+            },
+            {
+                path: "order",
+                element: <ManageOrderPage />
+            },
+            {
+                path: "user",
+                element: <ManageUserPage />
+            },
+            {
+                path: "*",
+                element: <ErrorComponent error="Error 404: Page not found." />
+            }
+        ]
     }
-]
+];
 
-export default userRoutes;
+export default routes;
