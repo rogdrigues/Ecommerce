@@ -4,6 +4,16 @@ import { ColumnsType } from "antd/es/table";
 const columns: ColumnsType<IUserTable> = [
     {
         title: 'ID',
+        key: 'id',
+        width: 100,
+        render: (_, __, index) => (
+            <Tooltip title={`Real ID: ${__._id}`}>
+                <span>{index + 1}</span>
+            </Tooltip>
+        ),
+    },
+    {
+        title: '_ID',
         dataIndex: '_id',
         key: '_id',
         width: 200,
@@ -13,6 +23,7 @@ const columns: ColumnsType<IUserTable> = [
                 <span>{id}</span>
             </Tooltip>
         ),
+        hidden: true,
     },
     {
         title: 'Email',
