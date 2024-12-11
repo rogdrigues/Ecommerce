@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Table, Button, Input, Select, Space, Form, Tooltip } from 'antd';
 import type { TablePaginationConfig } from 'antd/es/table';
 import type { FilterValue, SorterResult } from 'antd/es/table/interface';
-import { FAKE_DATA } from './data';
-import columns, { GithubIssueItem } from './user-table-columns';
+import columns from './user-table-columns';
+import { getUsersAPI } from '@/services/user.service'; // Import service gọi API
 import { PlusOutlined, ReloadOutlined, SettingOutlined } from '@ant-design/icons';
 
 const { Option } = Select;
@@ -11,53 +11,66 @@ const { Option } = Select;
 const initialSearchFilters = {
     title: '',
     status: undefined,
-    dateRange: [],
 };
 
 const TableUser = () => {
-    const [data, setData] = useState(FAKE_DATA);
+    const [data, setData] = useState<IUserTable[]>([]);
     const [pagination, setPagination] = useState<TablePaginationConfig>({
         current: 1,
         pageSize: 5,
+        showSizeChanger: true,
+        pageSizeOptions: ['1', '2', '5', '10', '20', '50'],
     });
     const [loading, setLoading] = useState(false);
     const [searchFilters, setSearchFilters] = useState(initialSearchFilters);
+    const [totalItems, setTotalItems] = useState<number>(0);
+
+    useEffect(() => {
+        fetchData(pagination.current || 1, pagination.pageSize || 5);
+    }, []);
+
+    const fetchData = async (current: number, pageSize: number) => {
+        setLoading(true);
+        try {
+            const res = await getUsersAPI(current, pageSize);
+
+            console.log(res);
+
+            setData(res.data?.result || []);
+            setPagination({
+                ...pagination,
+                current: res.data?.meta.current,
+                pageSize: res.data?.meta.pageSize,
+                total: res.data?.meta.total,
+            });
+            setTotalItems(res.data?.meta.total ?? 0);
+        } catch (error) {
+            console.error('Error fetching user data:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
 
     const handleTableChange = (
         newPagination: TablePaginationConfig,
         filters: Record<string, FilterValue | null>,
-        sorter: SorterResult<GithubIssueItem> | SorterResult<GithubIssueItem>[],
+        sorter: SorterResult<IUserTable> | SorterResult<IUserTable>[],
     ) => {
+        fetchData(newPagination.current!, newPagination.pageSize!);
         setPagination(newPagination);
-        fetchData({ pagination: newPagination });
-    };
-
-    const fetchData = async (params = {}) => {
-        setLoading(true);
-        await new Promise((resolve) => setTimeout(resolve, 1000));
-        setLoading(false);
     };
 
     const handleSearch = () => {
-        const filteredData = FAKE_DATA.filter((item) => {
-            const isTitleMatch = searchFilters.title
-                ? item.title.toLowerCase().includes(searchFilters.title.toLowerCase())
-                : true;
-            const isStatusMatch = searchFilters.status
-                ? item.state === searchFilters.status
-                : true;
-            return isTitleMatch && isStatusMatch;
-        });
-        setData(filteredData);
+        fetchData(pagination.current!, pagination.pageSize!);
     };
 
     const handleReset = () => {
         setSearchFilters(initialSearchFilters);
-        setData(FAKE_DATA);
+        fetchData(1, pagination.pageSize!);
     };
 
     const handleReload = () => {
-        fetchData();
+        fetchData(pagination.current!, pagination.pageSize!);
     };
 
     return (
@@ -82,9 +95,8 @@ const TableUser = () => {
                             }
                             style={{ width: 150 }}
                         >
-                            <Option value="open">Open</Option>
-                            <Option value="closed">Closed</Option>
-                            <Option value="processing">Processing</Option>
+                            <Option value="active">Active</Option>
+                            <Option value="inactive">Inactive</Option>
                         </Select>
                     </Form.Item>
                     <Form.Item style={{ marginLeft: 'auto' }}>
@@ -98,8 +110,9 @@ const TableUser = () => {
                 </Form>
             </section>
 
-
+            {/* Table */}
             <section style={{ padding: 24, background: '#fff', borderRadius: 8 }}>
+                {/* Toolbar */}
                 <div
                     style={{
                         marginBottom: 16,
@@ -123,15 +136,15 @@ const TableUser = () => {
                     </Space>
                 </div>
 
-                <Table<GithubIssueItem>
+                <Table<IUserTable>
                     columns={columns}
                     dataSource={data}
                     pagination={{
                         ...pagination,
-                        showTotal: (total, range) => `${range[0]}-${range[1]} of ${total} items`,
+                        showTotal: (total) => `Total ${total} items`,
                     }}
                     loading={loading}
-                    rowKey="id"
+                    rowKey="_id"
                     onChange={handleTableChange}
                     bordered
                 />

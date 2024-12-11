@@ -17,3 +17,8 @@ export const fetchAccountAPI = () => {
 export const logoutAPI = () => {
     return axios.post<IBackendRes<IRegister>>(`${baseURL}/auth/logout`);
 }
+
+export const getUsersAPI = (current: number, pageSize: number) => {
+    return axios.get<IBackendRes<IModelPaginate<IUserTable>>>(`${baseURL}/user?current=${current}&pageSize=${pageSize}`);
+
+}
