@@ -1,5 +1,6 @@
 import { Space, Tag, Tooltip } from "antd";
 import { ColumnsType } from "antd/es/table";
+import { EditOutlined, EyeOutlined, DeleteOutlined } from '@ant-design/icons';
 
 const columns: ColumnsType<IUserTable> = [
     {
@@ -48,17 +49,6 @@ const columns: ColumnsType<IUserTable> = [
         ),
     },
     {
-        title: 'Phone',
-        dataIndex: 'phone',
-        key: 'phone',
-        sorter: (a, b) => a.phone.localeCompare(b.phone),
-        render: (phone) => (
-            <Tooltip title={`Phone: ${phone}`}>
-                <span>{phone}</span>
-            </Tooltip>
-        ),
-    },
-    {
         title: 'Role',
         dataIndex: 'role',
         key: 'role',
@@ -70,7 +60,7 @@ const columns: ColumnsType<IUserTable> = [
         onFilter: (value, record) => record.role === value,
         render: (role) => (
             <Tooltip title={`Role: ${role}`}>
-                <Tag color={role === 'admin' ? 'red' : role === 'manager' ? 'blue' : 'green'}>
+                <Tag color={role === 'ADMIN' ? 'red' : role === 'USER' ? 'blue' : 'green'}>
                     {role.toUpperCase()}
                 </Tag>
             </Tooltip>
@@ -105,18 +95,31 @@ const columns: ColumnsType<IUserTable> = [
     {
         title: 'Actions',
         key: 'actions',
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         render: (_, record) => (
             <Space size="middle">
                 <Tooltip title="Edit this user">
-                    <a>Edit</a>
+                    <EditOutlined
+                        style={{ cursor: 'pointer', color: '#1890ff' }}
+                        onClick={() => console.log('Edit', record._id)}
+                    />
                 </Tooltip>
+
                 <Tooltip title="View details">
-                    <a target="_blank" rel="noopener noreferrer">View</a>
+                    <EyeOutlined
+                        style={{ cursor: 'pointer', color: '#52c41a' }}
+                        onClick={() => console.log('View', record._id)}
+                    />
+                </Tooltip>
+
+                <Tooltip title="Delete this user">
+                    <DeleteOutlined
+                        style={{ cursor: 'pointer', color: '#ff4d4f' }}
+                        onClick={() => console.log('Delete', record._id)}
+                    />
                 </Tooltip>
             </Space>
         ),
-    },
+    }
 ];
 
 export default columns;
