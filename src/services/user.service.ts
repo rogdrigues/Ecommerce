@@ -42,3 +42,12 @@ export const getUsersAPI = (current: number, pageSize: number, query?: Record<st
 export const addUserAPI = (data: { fullName: string, email: string, password: string, phone: string }) => {
     return axios.post<IBackendRes<IUser>>(`${baseURL}/user`, data);
 }
+
+export const bulkImportExcelUserAPI = (data: {
+    fullName: string,
+    password: string,
+    email: string,
+    phone: string,
+}[]) => {
+    return axios.post<IBackendRes<IResponseImport[]>>(`${baseURL}/user/bulk-create`, data);
+}

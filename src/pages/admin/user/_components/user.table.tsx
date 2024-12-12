@@ -1,12 +1,12 @@
 import { useEffect, useState } from 'react';
 import { Table, Button, Input, Select, Space, Form, Tooltip, DatePicker } from 'antd';
 import type { TablePaginationConfig } from 'antd/es/table';
-import columns from './user-table-columns';
+import columns from 'pages/admin/user/_components/user-table-columns';
+import AddNewUser from 'pages/admin/user/_components/user-table-action-modal';
+import ImportUserModal from 'pages/admin/user/_components/user-table-import';
 import { getUsersAPI } from '@/services/user.service';
 import { CloudDownloadOutlined, ImportOutlined, PlusOutlined, ReloadOutlined, SettingOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
-import AddNewUser from './user-table-action-modal';
-//import type { FilterValue, SorterResult } from 'antd/es/table/interface';
 
 const { RangePicker } = DatePicker;
 const { Option } = Select;
@@ -35,7 +35,10 @@ const TableUser = () => {
     });
     const [loading, setLoading] = useState(false);
     const [searchFilters, setSearchFilters] = useState(initialSearchFilters);
-    const [isModalVisible, setModalVisible] = useState(false);
+    const [modals, setModals] = useState({
+        addNewUser: false,
+        importUser: false,
+    });
 
     useEffect(() => {
         fetchData(pagination.current || 1, pagination.pageSize || 5);
@@ -44,7 +47,6 @@ const TableUser = () => {
     const fetchData = async (current: number, pageSize: number, query?: Record<string, unknown>) => {
         setLoading(true);
         try {
-            console.log('Fetching data with query:', query);
             const res = await getUsersAPI(current, pageSize, query);
 
             setData(res.data?.result || []);
@@ -63,8 +65,6 @@ const TableUser = () => {
 
     const handleTableChange = (
         newPagination: TablePaginationConfig,
-        //filters: Record<string, FilterValue | null>,
-        //sorter: SorterResult<IUserTable> | SorterResult<IUserTable>[],
     ) => {
         fetchData(newPagination.current!, newPagination.pageSize!);
         setPagination(newPagination);
@@ -74,17 +74,16 @@ const TableUser = () => {
         const query: Record<string, unknown> = {};
 
         if (searchFilters.fullName) {
-            query.fullName = { $regex: searchFilters.fullName, $options: "i" };
+            query.fullName = { $regex: searchFilters.fullName, $options: 'i' };
         }
 
         if (searchFilters.email) {
-            query.email = { $regex: searchFilters.email, $options: "i" };
+            query.email = { $regex: searchFilters.email, $options: 'i' };
         }
 
         if (searchFilters.isActive !== undefined) {
             query.isActive = searchFilters.isActive;
         }
-
 
         if (searchFilters.dateRange.length === 2) {
             query.createdAt = {
@@ -93,11 +92,8 @@ const TableUser = () => {
             };
         }
 
-        console.log("Dynamic Query:", query);
-
         fetchData(pagination.current!, pagination.pageSize!, query);
     };
-
 
     const handleReset = () => {
         setSearchFilters(initialSearchFilters);
@@ -108,11 +104,17 @@ const TableUser = () => {
         fetchData(pagination.current!, pagination.pageSize!);
     };
 
+    const toggleModal = (modal: keyof typeof modals, visible: boolean) => {
+        setModals((prev) => ({
+            ...prev,
+            [modal]: visible,
+        }));
+    };
+
     return (
         <>
             <section style={{ margin: '16px 0', padding: 16, background: '#fff', borderRadius: 8 }}>
                 <Form layout="inline" style={{ display: 'flex', flexWrap: 'wrap', gap: '16px' }}>
-                    {/* Full Name */}
                     <Form.Item label="Full Name" style={{ flex: 1, minWidth: '200px' }}>
                         <Input
                             placeholder="Enter full name"
@@ -123,7 +125,6 @@ const TableUser = () => {
                         />
                     </Form.Item>
 
-                    {/* Email */}
                     <Form.Item label="Email" style={{ flex: 1, minWidth: '200px' }}>
                         <Input
                             placeholder="Enter email"
@@ -134,7 +135,6 @@ const TableUser = () => {
                         />
                     </Form.Item>
 
-                    {/* Status */}
                     <Form.Item label="Status" style={{ flex: 1, minWidth: '200px' }}>
                         <Select
                             placeholder="Select status"
@@ -146,10 +146,8 @@ const TableUser = () => {
                             <Option value={true}>Active</Option>
                             <Option value={false}>Inactive</Option>
                         </Select>
-
                     </Form.Item>
 
-                    {/* Date Range */}
                     <Form.Item label="Created At" style={{ flex: 1, minWidth: '200px' }}>
                         <RangePicker
                             format="YYYY-MM-DD"
@@ -170,7 +168,6 @@ const TableUser = () => {
                         />
                     </Form.Item>
 
-                    {/* Buttons */}
                     <Form.Item style={{ marginLeft: 'auto' }}>
                         <Space>
                             <Button onClick={handleReset}>Reset</Button>
@@ -194,13 +191,25 @@ const TableUser = () => {
                     <h2 style={{ margin: 0 }}>Table user</h2>
 
                     <Space>
-                        <Button type="default" icon={<CloudDownloadOutlined />} onClick={() => { }}>
+                        <Button
+                            type="default"
+                            icon={<CloudDownloadOutlined />}
+                            onClick={() => { }}
+                        >
                             Export
                         </Button>
-                        <Button type="default" icon={<ImportOutlined />} onClick={() => { }}>
+                        <Button
+                            type="default"
+                            icon={<ImportOutlined />}
+                            onClick={() => toggleModal('importUser', true)}
+                        >
                             Import
                         </Button>
-                        <Button type="primary" icon={<PlusOutlined />} onClick={() => setModalVisible(true)}>
+                        <Button
+                            type="primary"
+                            icon={<PlusOutlined />}
+                            onClick={() => toggleModal('addNewUser', true)}
+                        >
                             Add new
                         </Button>
                         <Tooltip title="Reload">
@@ -227,8 +236,14 @@ const TableUser = () => {
             </section>
 
             <AddNewUser
-                visible={isModalVisible}
-                onClose={() => setModalVisible(false)}
+                visible={modals.addNewUser}
+                onClose={() => toggleModal('addNewUser', false)}
+                reload={handleReload}
+            />
+
+            <ImportUserModal
+                visible={modals.importUser}
+                onClose={() => toggleModal('importUser', false)}
                 reload={handleReload}
             />
         </>
