@@ -1,6 +1,6 @@
-import { Space, Tag, Tooltip } from "antd";
+import { Tag, Tooltip } from "antd";
 import { ColumnsType } from "antd/es/table";
-import { EditOutlined, EyeOutlined, DeleteOutlined } from '@ant-design/icons';
+import UserActions from "./user-table-actions";
 
 const columns: ColumnsType<IUserTable> = [
     {
@@ -96,30 +96,12 @@ const columns: ColumnsType<IUserTable> = [
         title: 'Actions',
         key: 'actions',
         render: (_, record) => (
-            <Space size="middle">
-                <Tooltip title="Edit this user">
-                    <EditOutlined
-                        style={{ cursor: 'pointer', color: '#1890ff' }}
-                        onClick={() => console.log('Edit', record._id)}
-                    />
-                </Tooltip>
-
-                <Tooltip title="View details">
-                    <EyeOutlined
-                        style={{ cursor: 'pointer', color: '#52c41a' }}
-                        onClick={() => console.log('View', record._id)}
-                    />
-                </Tooltip>
-
-                <Tooltip title="Delete this user">
-                    <DeleteOutlined
-                        style={{ cursor: 'pointer', color: '#ff4d4f' }}
-                        onClick={() => console.log('Delete', record._id)}
-                    />
-                </Tooltip>
-            </Space>
+            <UserActions
+                record={record}
+                userRole="ADMIN"
+            />
         ),
-    }
+    },
 ];
 
 export default columns;
