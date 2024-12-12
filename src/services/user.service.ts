@@ -33,7 +33,11 @@ export const getUsersAPI = (current: number, pageSize: number, query?: Record<st
             .join('&')
         : '';
 
-    const url = `${baseURL}/user?current=${current}&pageSize=${pageSize}${queryString ? `&${queryString}` : ''}`;
+    const url = `${baseURL}/user?current=${current}&pageSize=${pageSize}&sort=-createdAt${queryString ? `&${queryString}` : ''}`;
 
     return axios.get<IBackendRes<IModelPaginate<IUserTable>>>(url);
 };
+
+export const addUserAPI = (data: { fullName: string, email: string, password: string, phone: string }) => {
+    return axios.post<IBackendRes<IUser>>(`${baseURL}/user`, data);
+}

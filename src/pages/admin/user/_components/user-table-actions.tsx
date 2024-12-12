@@ -45,13 +45,13 @@ const UserActions = (props: IProps) => {
                 )}
             </Space>
 
-            {drawerVisible && (
-                <ViewUser
-                    record={record}
-                    visible={drawerVisible}
-                    onClose={() => setDrawerVisible(false)}
-                />
-            )}
+            {/* For viewing user details */}
+            <ViewUser
+                record={record}
+                visible={drawerVisible}
+                onClose={() => setDrawerVisible(false)}
+            />
+
         </>
     );
 };

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Drawer, Descriptions, Tag } from 'antd';
+import { Drawer, Descriptions, Tag, Typography, Avatar } from 'antd';
 
 interface ViewUserProps {
     record: IUserTable;
@@ -18,7 +18,14 @@ const ViewUser: React.FC<ViewUserProps> = ({ record, visible, onClose }) => {
 
     return (
         <Drawer
-            title="User Details"
+            title={
+                <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                    <Avatar size={48} src={`${import.meta.env.VITE_BACKEND_URL}/images/avatar/${record?.avatar}`} alt={`${record.fullName}'s avatar`} />
+                    <Typography.Title level={5} style={{ margin: 0 }}>
+                        {record.fullName}
+                    </Typography.Title>
+                </div>
+            }
             placement="right"
             width={800}
             onClose={onClose}
