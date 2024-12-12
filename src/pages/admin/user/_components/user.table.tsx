@@ -11,6 +11,7 @@ const { Option } = Select;
 const initialSearchFilters = {
     title: '',
     status: undefined,
+    createdAt: '',
 };
 
 const TableUser = () => {
@@ -23,7 +24,6 @@ const TableUser = () => {
     });
     const [loading, setLoading] = useState(false);
     const [searchFilters, setSearchFilters] = useState(initialSearchFilters);
-    const [totalItems, setTotalItems] = useState<number>(0);
 
     useEffect(() => {
         fetchData(pagination.current || 1, pagination.pageSize || 5);
@@ -43,7 +43,6 @@ const TableUser = () => {
                 pageSize: res.data?.meta.pageSize,
                 total: res.data?.meta.total,
             });
-            setTotalItems(res.data?.meta.total ?? 0);
         } catch (error) {
             console.error('Error fetching user data:', error);
         } finally {
@@ -61,6 +60,8 @@ const TableUser = () => {
     };
 
     const handleSearch = () => {
+        console.log(searchFilters);
+
         fetchData(pagination.current!, pagination.pageSize!);
     };
 
@@ -76,8 +77,8 @@ const TableUser = () => {
     return (
         <>
             <section style={{ margin: "16px 0", padding: 16, background: '#fff', borderRadius: 8 }}>
-                <Form layout="inline">
-                    <Form.Item label="Title">
+                <Form layout="inline" style={{ display: 'flex', flexWrap: 'wrap', gap: '16px' }}>
+                    <Form.Item label="Title" style={{ flex: 1, minWidth: '200px' }}>
                         <Input
                             placeholder="Enter title"
                             value={searchFilters.title}
@@ -86,19 +87,30 @@ const TableUser = () => {
                             }
                         />
                     </Form.Item>
-                    <Form.Item label="Status">
+
+                    <Form.Item label="Status" style={{ flex: 1, minWidth: '200px' }}>
                         <Select
                             placeholder="Select status"
                             value={searchFilters.status}
                             onChange={(value) =>
                                 setSearchFilters({ ...searchFilters, status: value })
                             }
-                            style={{ width: 150 }}
                         >
                             <Option value="active">Active</Option>
                             <Option value="inactive">Inactive</Option>
                         </Select>
                     </Form.Item>
+
+                    <Form.Item label="Created At" style={{ flex: 1, minWidth: '200px' }}>
+                        <Input
+                            type="date"
+                            placeholder="Select date"
+                            onChange={(e) =>
+                                setSearchFilters({ ...searchFilters, createdAt: e.target.value })
+                            }
+                        />
+                    </Form.Item>
+
                     <Form.Item style={{ marginLeft: 'auto' }}>
                         <Space>
                             <Button onClick={handleReset}>Reset</Button>
@@ -109,6 +121,7 @@ const TableUser = () => {
                     </Form.Item>
                 </Form>
             </section>
+
 
             {/* Table */}
             <section style={{ padding: 24, background: '#fff', borderRadius: 8 }}>
