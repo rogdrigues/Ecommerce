@@ -1,14 +1,14 @@
 import { useEffect, useState } from 'react';
 import { Table, Button, Input, Select, Space, Form, Tooltip, DatePicker } from 'antd';
 import type { TablePaginationConfig } from 'antd/es/table';
-import type { FilterValue, SorterResult } from 'antd/es/table/interface';
 import columns from './user-table-columns';
 import { getUsersAPI } from '@/services/user.service';
-import { PlusOutlined, ReloadOutlined, SettingOutlined } from '@ant-design/icons';
+import { CloudDownloadOutlined, ImportOutlined, PlusOutlined, ReloadOutlined, SettingOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
 import AddNewUser from './user-table-action-modal';
-const { RangePicker } = DatePicker;
+//import type { FilterValue, SorterResult } from 'antd/es/table/interface';
 
+const { RangePicker } = DatePicker;
 const { Option } = Select;
 
 interface SearchFilters {
@@ -41,7 +41,7 @@ const TableUser = () => {
         fetchData(pagination.current || 1, pagination.pageSize || 5);
     }, []);
 
-    const fetchData = async (current: number, pageSize: number, query?: Record<string, any>) => {
+    const fetchData = async (current: number, pageSize: number, query?: Record<string, unknown>) => {
         setLoading(true);
         try {
             console.log('Fetching data with query:', query);
@@ -63,8 +63,8 @@ const TableUser = () => {
 
     const handleTableChange = (
         newPagination: TablePaginationConfig,
-        filters: Record<string, FilterValue | null>,
-        sorter: SorterResult<IUserTable> | SorterResult<IUserTable>[],
+        //filters: Record<string, FilterValue | null>,
+        //sorter: SorterResult<IUserTable> | SorterResult<IUserTable>[],
     ) => {
         fetchData(newPagination.current!, newPagination.pageSize!);
         setPagination(newPagination);
@@ -74,7 +74,7 @@ const TableUser = () => {
         const query: Record<string, unknown> = {};
 
         if (searchFilters.fullName) {
-            query.fullName = { $regex: searchFilters.fullName, $options: "i" }; // "i" để không phân biệt chữ hoa/thường
+            query.fullName = { $regex: searchFilters.fullName, $options: "i" };
         }
 
         if (searchFilters.email) {
@@ -194,15 +194,21 @@ const TableUser = () => {
                     <h2 style={{ margin: 0 }}>Table user</h2>
 
                     <Space>
+                        <Button type="default" icon={<CloudDownloadOutlined />} onClick={() => { }}>
+                            Export
+                        </Button>
+                        <Button type="default" icon={<ImportOutlined />} onClick={() => { }}>
+                            Import
+                        </Button>
+                        <Button type="primary" icon={<PlusOutlined />} onClick={() => setModalVisible(true)}>
+                            Add new
+                        </Button>
                         <Tooltip title="Reload">
                             <Button icon={<ReloadOutlined />} onClick={handleReload} />
                         </Tooltip>
                         <Tooltip title="Column settings">
                             <Button icon={<SettingOutlined />} />
                         </Tooltip>
-                        <Button type="primary" icon={<PlusOutlined />} onClick={() => setModalVisible(true)}>
-                            Add new
-                        </Button>
                     </Space>
                 </div>
 

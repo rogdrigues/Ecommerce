@@ -94,7 +94,6 @@ const AdminLayout = () => {
 
     return (
         <Layout style={{ minHeight: '100vh' }} className="layout-admin">
-            {/* Sidebar */}
             <Sider
                 theme="light"
                 collapsible
@@ -110,9 +109,7 @@ const AdminLayout = () => {
                 />
             </Sider>
 
-            {/* Main layout */}
             <Layout>
-                {/* Header */}
                 <div
                     className="admin-header"
                     style={{

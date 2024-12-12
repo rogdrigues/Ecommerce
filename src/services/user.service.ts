@@ -18,6 +18,7 @@ export const logoutAPI = () => {
     return axios.post<IBackendRes<IRegister>>(`${baseURL}/auth/logout`);
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const getUsersAPI = (current: number, pageSize: number, query?: Record<string, any>) => {
     const queryString = query
         ? Object.entries(query)
