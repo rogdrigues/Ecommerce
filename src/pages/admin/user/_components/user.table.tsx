@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Table, Button, Input, Select, Space, Form, Tooltip, DatePicker } from 'antd';
 import type { TablePaginationConfig } from 'antd/es/table';
 import type { FilterValue, SorterResult } from 'antd/es/table/interface';
@@ -6,7 +6,7 @@ import columns from './user-table-columns';
 import { getUsersAPI } from '@/services/user.service';
 import { PlusOutlined, ReloadOutlined, SettingOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
-import UserActions from './user-table-actions';
+import AddNewUser from './user-table-action-modal';
 const { RangePicker } = DatePicker;
 
 const { Option } = Select;
@@ -35,6 +35,7 @@ const TableUser = () => {
     });
     const [loading, setLoading] = useState(false);
     const [searchFilters, setSearchFilters] = useState(initialSearchFilters);
+    const [isModalVisible, setModalVisible] = useState(false);
 
     useEffect(() => {
         fetchData(pagination.current || 1, pagination.pageSize || 5);
@@ -199,7 +200,7 @@ const TableUser = () => {
                         <Tooltip title="Column settings">
                             <Button icon={<SettingOutlined />} />
                         </Tooltip>
-                        <Button type="primary" icon={<PlusOutlined />}>
+                        <Button type="primary" icon={<PlusOutlined />} onClick={() => setModalVisible(true)}>
                             Add new
                         </Button>
                     </Space>
@@ -218,6 +219,12 @@ const TableUser = () => {
                     bordered
                 />
             </section>
+
+            <AddNewUser
+                visible={isModalVisible}
+                onClose={() => setModalVisible(false)}
+                reload={handleReload}
+            />
         </>
     );
 };
