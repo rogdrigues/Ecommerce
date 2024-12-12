@@ -1,17 +1,28 @@
 import React, { useEffect, useState } from 'react';
-import { Table, Button, Input, Select, Space, Form, Tooltip } from 'antd';
+import { Table, Button, Input, Select, Space, Form, Tooltip, DatePicker } from 'antd';
 import type { TablePaginationConfig } from 'antd/es/table';
 import type { FilterValue, SorterResult } from 'antd/es/table/interface';
 import columns from './user-table-columns';
-import { getUsersAPI } from '@/services/user.service'; // Import service gọi API
+import { getUsersAPI } from '@/services/user.service';
 import { PlusOutlined, ReloadOutlined, SettingOutlined } from '@ant-design/icons';
+import dayjs from 'dayjs';
+import UserActions from './user-table-actions';
+const { RangePicker } = DatePicker;
 
 const { Option } = Select;
 
-const initialSearchFilters = {
-    title: '',
-    status: undefined,
-    createdAt: '',
+interface SearchFilters {
+    fullName: string;
+    email: string;
+    isActive: boolean | undefined;
+    dateRange: [string, string] | [];
+}
+
+const initialSearchFilters: SearchFilters = {
+    fullName: '',
+    email: '',
+    isActive: undefined,
+    dateRange: [],
 };
 
 const TableUser = () => {
@@ -29,12 +40,11 @@ const TableUser = () => {
         fetchData(pagination.current || 1, pagination.pageSize || 5);
     }, []);
 
-    const fetchData = async (current: number, pageSize: number) => {
+    const fetchData = async (current: number, pageSize: number, query?: Record<string, any>) => {
         setLoading(true);
         try {
-            const res = await getUsersAPI(current, pageSize);
-
-            console.log(res);
+            console.log('Fetching data with query:', query);
+            const res = await getUsersAPI(current, pageSize, query);
 
             setData(res.data?.result || []);
             setPagination({
@@ -60,10 +70,33 @@ const TableUser = () => {
     };
 
     const handleSearch = () => {
-        console.log(searchFilters);
+        const query: Record<string, unknown> = {};
 
-        fetchData(pagination.current!, pagination.pageSize!);
+        if (searchFilters.fullName) {
+            query.fullName = { $regex: searchFilters.fullName, $options: "i" }; // "i" để không phân biệt chữ hoa/thường
+        }
+
+        if (searchFilters.email) {
+            query.email = { $regex: searchFilters.email, $options: "i" };
+        }
+
+        if (searchFilters.isActive !== undefined) {
+            query.isActive = searchFilters.isActive;
+        }
+
+
+        if (searchFilters.dateRange.length === 2) {
+            query.createdAt = {
+                $gte: searchFilters.dateRange[0],
+                $lte: searchFilters.dateRange[1],
+            };
+        }
+
+        console.log("Dynamic Query:", query);
+
+        fetchData(pagination.current!, pagination.pageSize!, query);
     };
+
 
     const handleReset = () => {
         setSearchFilters(initialSearchFilters);
@@ -76,41 +109,67 @@ const TableUser = () => {
 
     return (
         <>
-            <section style={{ margin: "16px 0", padding: 16, background: '#fff', borderRadius: 8 }}>
+            <section style={{ margin: '16px 0', padding: 16, background: '#fff', borderRadius: 8 }}>
                 <Form layout="inline" style={{ display: 'flex', flexWrap: 'wrap', gap: '16px' }}>
-                    <Form.Item label="Title" style={{ flex: 1, minWidth: '200px' }}>
+                    {/* Full Name */}
+                    <Form.Item label="Full Name" style={{ flex: 1, minWidth: '200px' }}>
                         <Input
-                            placeholder="Enter title"
-                            value={searchFilters.title}
+                            placeholder="Enter full name"
+                            value={searchFilters.fullName}
                             onChange={(e) =>
-                                setSearchFilters({ ...searchFilters, title: e.target.value })
+                                setSearchFilters({ ...searchFilters, fullName: e.target.value })
                             }
                         />
                     </Form.Item>
 
+                    {/* Email */}
+                    <Form.Item label="Email" style={{ flex: 1, minWidth: '200px' }}>
+                        <Input
+                            placeholder="Enter email"
+                            value={searchFilters.email}
+                            onChange={(e) =>
+                                setSearchFilters({ ...searchFilters, email: e.target.value })
+                            }
+                        />
+                    </Form.Item>
+
+                    {/* Status */}
                     <Form.Item label="Status" style={{ flex: 1, minWidth: '200px' }}>
                         <Select
                             placeholder="Select status"
-                            value={searchFilters.status}
+                            value={searchFilters.isActive}
                             onChange={(value) =>
-                                setSearchFilters({ ...searchFilters, status: value })
+                                setSearchFilters({ ...searchFilters, isActive: value })
                             }
                         >
-                            <Option value="active">Active</Option>
-                            <Option value="inactive">Inactive</Option>
+                            <Option value={true}>Active</Option>
+                            <Option value={false}>Inactive</Option>
                         </Select>
+
                     </Form.Item>
 
+                    {/* Date Range */}
                     <Form.Item label="Created At" style={{ flex: 1, minWidth: '200px' }}>
-                        <Input
-                            type="date"
-                            placeholder="Select date"
-                            onChange={(e) =>
-                                setSearchFilters({ ...searchFilters, createdAt: e.target.value })
+                        <RangePicker
+                            format="YYYY-MM-DD"
+                            value={
+                                searchFilters.dateRange.length
+                                    ? [
+                                        dayjs(searchFilters.dateRange[0]),
+                                        dayjs(searchFilters.dateRange[1]),
+                                    ]
+                                    : null
                             }
+                            onChange={(dates, dateStrings) => {
+                                setSearchFilters({
+                                    ...searchFilters,
+                                    dateRange: dateStrings,
+                                });
+                            }}
                         />
                     </Form.Item>
 
+                    {/* Buttons */}
                     <Form.Item style={{ marginLeft: 'auto' }}>
                         <Space>
                             <Button onClick={handleReset}>Reset</Button>
@@ -122,10 +181,7 @@ const TableUser = () => {
                 </Form>
             </section>
 
-
-            {/* Table */}
             <section style={{ padding: 24, background: '#fff', borderRadius: 8 }}>
-                {/* Toolbar */}
                 <div
                     style={{
                         marginBottom: 16,
