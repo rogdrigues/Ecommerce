@@ -3,7 +3,8 @@ import { EditOutlined, EyeOutlined, DeleteOutlined } from '@ant-design/icons';
 import { useAppContext } from '@/context/app.context';
 import ViewUser from './user-table-view';
 import { useState } from 'react';
-import UserModal from './user-table-action-modal';
+import UserModal from './user-table-modal';
+import DeleteUserModal from './user-table-action-modal-delete';
 
 interface IProps {
     record: IUserTable;
@@ -12,10 +13,10 @@ interface IProps {
 }
 
 const UserActions = (props: IProps) => {
-    const { record, userRole, onReload } = props;
+    const { record, userRole, onReload = () => { } } = props;
     const { user } = useAppContext();
-    const [drawerVisible, setDrawerVisible] = useState(false);
-    const [updateModalVisible, setUpdateModalVisible] = useState(false);
+
+    const [activeModal, setActiveModal] = useState<'view' | 'update' | 'delete' | null>(null);
 
     const canEditOrDelete = userRole === user?.role;
 
@@ -26,7 +27,7 @@ const UserActions = (props: IProps) => {
                     <Tooltip title="Edit this user">
                         <EditOutlined
                             style={{ cursor: 'pointer', color: '#1890ff' }}
-                            onClick={() => setUpdateModalVisible(true)}
+                            onClick={() => setActiveModal('update')}
                         />
                     </Tooltip>
                 )}
@@ -34,7 +35,7 @@ const UserActions = (props: IProps) => {
                 <Tooltip title="View details">
                     <EyeOutlined
                         style={{ cursor: 'pointer', color: '#52c41a' }}
-                        onClick={() => setDrawerVisible(true)}
+                        onClick={() => setActiveModal('view')}
                     />
                 </Tooltip>
 
@@ -42,24 +43,30 @@ const UserActions = (props: IProps) => {
                     <Tooltip title="Delete this user">
                         <DeleteOutlined
                             style={{ cursor: 'pointer', color: '#ff4d4f' }}
-                            onClick={() => console.log('Delete user:', record._id)}
+                            onClick={() => setActiveModal('delete')}
                         />
                     </Tooltip>
                 )}
             </Space>
 
-            {/* For viewing user details */}
             <ViewUser
                 record={record}
-                visible={drawerVisible}
-                onClose={() => setDrawerVisible(false)}
+                visible={activeModal === 'view'}
+                onClose={() => setActiveModal(null)}
             />
-            {/* For update user */}
+
             <UserModal
-                visible={updateModalVisible}
-                onClose={() => setUpdateModalVisible(false)}
+                visible={activeModal === 'update'}
+                onClose={() => setActiveModal(null)}
                 reload={onReload}
                 userData={record}
+            />
+
+            <DeleteUserModal
+                visible={activeModal === 'delete'}
+                onClose={() => setActiveModal(null)}
+                record={record}
+                onReload={onReload}
             />
         </>
     );

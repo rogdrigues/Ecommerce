@@ -47,6 +47,9 @@ export const updateUserAPI = (data: { _id: string, fullName: string, phone: stri
     return axios.put<IBackendRes<IUser>>(`${baseURL}/user`, data);
 }
 
+export const deleteUserAPI = (_id: string) => {
+    return axios.delete<IBackendRes<IUser>>(`${baseURL}/user/${_id}`);
+}
 
 export const bulkImportExcelUserAPI = (data: {
     fullName: string,
