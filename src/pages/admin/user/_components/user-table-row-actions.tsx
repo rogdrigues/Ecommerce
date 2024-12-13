@@ -1,10 +1,10 @@
 import { Space, Tooltip } from 'antd';
 import { EditOutlined, EyeOutlined, DeleteOutlined } from '@ant-design/icons';
 import { useAppContext } from '@/context/app.context';
-import ViewUser from './user-table-view';
+import ViewUser from './user-view-modal';
 import { useState } from 'react';
-import UserModal from './user-table-modal';
-import DeleteUserModal from './user-table-action-modal-delete';
+import UserModal from './user-form-modal';
+import DeleteUserModal from './user-delete-modal';
 
 interface IProps {
     record: IUserTable;
