@@ -7,7 +7,7 @@ import { getUsersAPI } from '@/services/user.service';
 import { CloudDownloadOutlined, ImportOutlined, PlusOutlined, ReloadOutlined, SettingOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
 import { CSVLink } from 'react-csv';
-import UserModal from 'pages/admin/user/_components/user-table-action-modal';
+import UserModal from '@/pages/admin/user/_components/user-table-modal';
 import UserActions from './user-table-actions';
 
 const { RangePicker } = DatePicker;
