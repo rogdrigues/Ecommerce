@@ -158,3 +158,16 @@
         }
     }
 }
+
+.icon-toggle {
+    opacity: 1;
+    transition: all 0.3s ease-in-out;
+    padding: 5px;
+    border-radius: 50%; 
+}
+
+.icon-toggle.active {
+    background-color: rgba(0, 123, 255, 0.2);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); 
+    transition: all 0.3s ease-in-out;
+}
