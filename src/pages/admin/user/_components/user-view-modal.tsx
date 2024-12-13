@@ -1,13 +1,14 @@
-import React from 'react';
 import { Drawer, Descriptions, Tag, Typography, Avatar } from 'antd';
 
-interface ViewUserProps {
+interface IProps {
     record: IUserTable;
     visible: boolean;
     onClose: () => void;
 }
 
-const ViewUser: React.FC<ViewUserProps> = ({ record, visible, onClose }) => {
+const ViewUser = (props: IProps) => {
+    const { record, visible, onClose } = props;
+
     const roleColor = {
         admin: 'red',
         user: 'blue',
