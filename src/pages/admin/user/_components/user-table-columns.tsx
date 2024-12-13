@@ -1,6 +1,5 @@
 import { Tag, Tooltip } from "antd";
 import { ColumnsType } from "antd/es/table";
-import UserActions from "./user-table-actions";
 
 const columns: ColumnsType<IUserTable> = [
     {
@@ -95,12 +94,6 @@ const columns: ColumnsType<IUserTable> = [
     {
         title: 'Actions',
         key: 'actions',
-        render: (_, record) => (
-            <UserActions
-                record={record}
-                userRole="ADMIN"
-            />
-        ),
     },
 ];
 

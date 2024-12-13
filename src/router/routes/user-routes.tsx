@@ -43,6 +43,7 @@ const routes = [
                 </RoleBasedRoute>
             </ProtectedRoute>
         ),
+        errorElement: <ErrorComponent error="Some error occurred." />,
         children: [
             {
                 path: "book",

@@ -3,16 +3,19 @@ import { EditOutlined, EyeOutlined, DeleteOutlined } from '@ant-design/icons';
 import { useAppContext } from '@/context/app.context';
 import ViewUser from './user-table-view';
 import { useState } from 'react';
+import UserModal from './user-table-action-modal';
 
 interface IProps {
     record: IUserTable;
     userRole?: string;
+    onReload?: () => void;
 }
 
 const UserActions = (props: IProps) => {
-    const { record, userRole } = props;
+    const { record, userRole, onReload } = props;
     const { user } = useAppContext();
     const [drawerVisible, setDrawerVisible] = useState(false);
+    const [updateModalVisible, setUpdateModalVisible] = useState(false);
 
     const canEditOrDelete = userRole === user?.role;
 
@@ -23,7 +26,7 @@ const UserActions = (props: IProps) => {
                     <Tooltip title="Edit this user">
                         <EditOutlined
                             style={{ cursor: 'pointer', color: '#1890ff' }}
-                            onClick={() => console.log('Edit user:', record._id)}
+                            onClick={() => setUpdateModalVisible(true)}
                         />
                     </Tooltip>
                 )}
@@ -51,7 +54,13 @@ const UserActions = (props: IProps) => {
                 visible={drawerVisible}
                 onClose={() => setDrawerVisible(false)}
             />
-
+            {/* For update user */}
+            <UserModal
+                visible={updateModalVisible}
+                onClose={() => setUpdateModalVisible(false)}
+                reload={onReload}
+                userData={record}
+            />
         </>
     );
 };
