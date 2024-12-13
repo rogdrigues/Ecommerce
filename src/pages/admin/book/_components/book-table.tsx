@@ -1,34 +1,29 @@
 import { useEffect, useState } from 'react';
-import { Table, Button, Input, Select, Space, Form, Tooltip, DatePicker } from 'antd';
+import { Table, Button, Input, Space, Form, Tooltip, DatePicker } from 'antd';
 import type { ColumnType, TablePaginationConfig } from 'antd/es/table';
-import columns from '@/pages/admin/user/_components/user-table-columns-config.tsx';
-import ImportUserModal from '@/pages/admin/user/_components/user-import-modal.tsx';
-import { getUsersAPI } from '@/services';
-import { CloudDownloadOutlined, ImportOutlined, PlusOutlined, ReloadOutlined, SettingOutlined } from '@ant-design/icons';
+import columns from '@/pages/admin/book/_components/book-table-columns-config.tsx';
+import { getBooksAPI } from '@/services';
+import { CloudDownloadOutlined, PlusOutlined, ReloadOutlined, SettingOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
-import { CSVLink } from 'react-csv';
-import UserModal from '@/pages/admin/user/_components/user-form-modal.tsx';
-import UserActions from './user-table-row-actions.tsx';
+import BookActions from '@/pages/admin/book/_components/book-table-row-actions.tsx';
+import BookModal from './book-form-modal';
 
 const { RangePicker } = DatePicker;
-const { Option } = Select;
 
 interface SearchFilters {
-    fullName: string;
-    email: string;
-    isActive: boolean | undefined;
+    mainText: string;
+    author: string;
     dateRange: [string, string] | [];
 }
 
 const initialSearchFilters: SearchFilters = {
-    fullName: '',
-    email: '',
-    isActive: undefined,
+    mainText: '',
+    author: '',
     dateRange: [],
 };
 
-const TableUser = () => {
-    const [data, setData] = useState<IUserTable[]>([]);
+const TableBook = () => {
+    const [data, setData] = useState<IBookTable[]>([]);
     const [pagination, setPagination] = useState<TablePaginationConfig>({
         current: 1,
         pageSize: 5,
@@ -38,9 +33,15 @@ const TableUser = () => {
     const [loading, setLoading] = useState(false);
     const [searchFilters, setSearchFilters] = useState(initialSearchFilters);
     const [modals, setModals] = useState({
-        addNewUser: false,
-        importUser: false,
+        addNewBook: false,
     });
+
+    const toggleModal = (modal: keyof typeof modals, visible: boolean) => {
+        setModals((prev) => ({
+            ...prev,
+            [modal]: visible,
+        }));
+    };
 
     useEffect(() => {
         fetchData(pagination.current || 1, pagination.pageSize || 5);
@@ -49,7 +50,7 @@ const TableUser = () => {
     const fetchData = async (current: number, pageSize: number, query?: Record<string, unknown>) => {
         setLoading(true);
         try {
-            const res = await getUsersAPI(current, pageSize, query);
+            const res = await getBooksAPI(current, pageSize, query);
 
             setData(res.data?.result || []);
             setPagination({
@@ -59,7 +60,7 @@ const TableUser = () => {
                 total: res.data?.meta.total,
             });
         } catch (error) {
-            console.error('Error fetching user data:', error);
+            console.error('Error fetching book data:', error);
         } finally {
             setLoading(false);
         }
@@ -75,16 +76,12 @@ const TableUser = () => {
     const handleSearch = () => {
         const query: Record<string, unknown> = {};
 
-        if (searchFilters.fullName) {
-            query.fullName = { $regex: searchFilters.fullName, $options: 'i' };
+        if (searchFilters.mainText) {
+            query.mainText = { $regex: searchFilters.mainText, $options: 'i' };
         }
 
-        if (searchFilters.email) {
-            query.email = { $regex: searchFilters.email, $options: 'i' };
-        }
-
-        if (searchFilters.isActive !== undefined) {
-            query.isActive = searchFilters.isActive;
+        if (searchFilters.author) {
+            query.author = { $regex: searchFilters.author, $options: 'i' };
         }
 
         if (searchFilters.dateRange.length === 2) {
@@ -106,48 +103,28 @@ const TableUser = () => {
         fetchData(pagination.current!, pagination.pageSize!);
     };
 
-    const toggleModal = (modal: keyof typeof modals, visible: boolean) => {
-        setModals((prev) => ({
-            ...prev,
-            [modal]: visible,
-        }));
-    };
-
     return (
         <>
             <section style={{ margin: '16px 0', padding: 16, background: '#fff', borderRadius: 8 }}>
                 <Form layout="inline" style={{ display: 'flex', flexWrap: 'wrap', gap: '16px' }}>
-                    <Form.Item label="Full Name" style={{ flex: 1, minWidth: '200px' }}>
+                    <Form.Item label="Name of Book" style={{ flex: 1, minWidth: '200px' }}>
                         <Input
-                            placeholder="Enter full name"
-                            value={searchFilters.fullName}
+                            placeholder="Enter book title"
+                            value={searchFilters.mainText}
                             onChange={(e) =>
-                                setSearchFilters({ ...searchFilters, fullName: e.target.value })
+                                setSearchFilters({ ...searchFilters, mainText: e.target.value })
                             }
                         />
                     </Form.Item>
 
-                    <Form.Item label="Email" style={{ flex: 1, minWidth: '200px' }}>
+                    <Form.Item label="Author" style={{ flex: 1, minWidth: '200px' }}>
                         <Input
-                            placeholder="Enter email"
-                            value={searchFilters.email}
+                            placeholder="Enter author name"
+                            value={searchFilters.author}
                             onChange={(e) =>
-                                setSearchFilters({ ...searchFilters, email: e.target.value })
+                                setSearchFilters({ ...searchFilters, author: e.target.value })
                             }
                         />
-                    </Form.Item>
-
-                    <Form.Item label="Status" style={{ flex: 1, minWidth: '200px' }}>
-                        <Select
-                            placeholder="Select status"
-                            value={searchFilters.isActive}
-                            onChange={(value) =>
-                                setSearchFilters({ ...searchFilters, isActive: value })
-                            }
-                        >
-                            <Option value={true}>Active</Option>
-                            <Option value={false}>Inactive</Option>
-                        </Select>
                     </Form.Item>
 
                     <Form.Item label="Created At" style={{ flex: 1, minWidth: '200px' }}>
@@ -190,7 +167,7 @@ const TableUser = () => {
                         alignItems: 'center',
                     }}
                 >
-                    <h2 style={{ margin: 0 }}>Table user</h2>
+                    <h2 style={{ margin: 0 }}>Table Books</h2>
 
                     <Space>
                         <Button
@@ -198,23 +175,12 @@ const TableUser = () => {
                             icon={<CloudDownloadOutlined />}
                             onClick={() => { }}
                         >
-                            <CSVLink
-                                data={data}
-                                filename={`users-${dayjs().format('YYYY-MM-DD')}.csv`}>
-                                Export
-                            </CSVLink>
-                        </Button>
-                        <Button
-                            type="default"
-                            icon={<ImportOutlined />}
-                            onClick={() => toggleModal('importUser', true)}
-                        >
-                            Import
+                            Export
                         </Button>
                         <Button
                             type="primary"
                             icon={<PlusOutlined />}
-                            onClick={() => toggleModal('addNewUser', true)}
+                            onClick={() => toggleModal('addNewBook', true)}
                         >
                             Add new
                         </Button>
@@ -229,21 +195,22 @@ const TableUser = () => {
 
                 <Table
                     columns={columns.map((col) => {
-
-                        if ((col as ColumnType<IUserTable>).key === 'actions') {
+                        if ((col as ColumnType<IBookTable>).key === 'actions') {
                             return {
                                 ...col,
-                                render: (_: unknown, record: IUserTable) => (
-                                    <UserActions
-                                        record={record}
-                                        userRole="ADMIN"
-                                        onReload={handleReload}
-                                    />
+                                render: (_: unknown, record: IBookTable) => (
+                                    <>
+                                        <BookActions
+                                            record={record}
+                                            userRole="ADMIN"
+                                            onReload={handleReload}
+                                        />
+                                    </>
                                 ),
                             };
                         }
                         return col;
-                    }) as ColumnType<IUserTable>[]}
+                    }) as ColumnType<IBookTable>[]}
                     dataSource={data}
                     pagination={{
                         ...pagination,
@@ -256,19 +223,13 @@ const TableUser = () => {
                 />
             </section>
 
-            <UserModal
-                visible={modals.addNewUser}
-                onClose={() => toggleModal('addNewUser', false)}
-                reload={handleReload}
-            />
-
-            <ImportUserModal
-                visible={modals.importUser}
-                onClose={() => toggleModal('importUser', false)}
+            <BookModal
+                visible={modals.addNewBook}
+                onClose={() => toggleModal('addNewBook', false)}
                 reload={handleReload}
             />
         </>
     );
 };
 
-export default TableUser;
+export default TableBook;
