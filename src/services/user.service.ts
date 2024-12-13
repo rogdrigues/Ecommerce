@@ -43,6 +43,11 @@ export const addUserAPI = (data: { fullName: string, email: string, password: st
     return axios.post<IBackendRes<IUser>>(`${baseURL}/user`, data);
 }
 
+export const updateUserAPI = (data: { _id: string, fullName: string, phone: string }) => {
+    return axios.put<IBackendRes<IUser>>(`${baseURL}/user`, data);
+}
+
+
 export const bulkImportExcelUserAPI = (data: {
     fullName: string,
     password: string,
