@@ -141,7 +141,7 @@ const ImportUser = (props: IProps) => {
     return (
         <Modal
             title="Import Users"
-            visible={visible}
+            open={visible}
             onCancel={onClose}
             footer={
                 <Button
@@ -171,7 +171,16 @@ const ImportUser = (props: IProps) => {
                     <p className="ant-upload-hint">
                         Only Excel files are accepted. Maximum 1 file at a time.
                     </p>
+                    <a
+                        href="/path-to-sample/sample-file.xlsx"
+                        download="sample-file.xlsx"
+                        style={{ display: 'block', marginTop: 16, color: '#1890ff' }}
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        Download sample file
+                    </a>
                 </Upload.Dragger>
+
                 {fileName && (
                     <div style={{ marginTop: 8 }}>
                         <strong>File Name:</strong> {fileName}{' '}

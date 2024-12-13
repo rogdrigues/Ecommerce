@@ -1,12 +1,14 @@
 import { useEffect, useState } from 'react';
 import { Table, Button, Input, Select, Space, Form, Tooltip, DatePicker } from 'antd';
-import type { TablePaginationConfig } from 'antd/es/table';
+import type { ColumnType, TablePaginationConfig } from 'antd/es/table';
 import columns from 'pages/admin/user/_components/user-table-columns';
-import AddNewUser from 'pages/admin/user/_components/user-table-action-modal';
 import ImportUserModal from 'pages/admin/user/_components/user-table-import';
 import { getUsersAPI } from '@/services/user.service';
 import { CloudDownloadOutlined, ImportOutlined, PlusOutlined, ReloadOutlined, SettingOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
+import { CSVLink } from 'react-csv';
+import UserModal from 'pages/admin/user/_components/user-table-action-modal';
+import UserActions from './user-table-actions';
 
 const { RangePicker } = DatePicker;
 const { Option } = Select;
@@ -196,7 +198,11 @@ const TableUser = () => {
                             icon={<CloudDownloadOutlined />}
                             onClick={() => { }}
                         >
-                            Export
+                            <CSVLink
+                                data={data}
+                                filename={`users-${dayjs().format('YYYY-MM-DD')}.csv`}>
+                                Export
+                            </CSVLink>
                         </Button>
                         <Button
                             type="default"
@@ -221,8 +227,23 @@ const TableUser = () => {
                     </Space>
                 </div>
 
-                <Table<IUserTable>
-                    columns={columns}
+                <Table
+                    columns={columns.map((col) => {
+
+                        if ((col as ColumnType<IUserTable>).key === 'actions') {
+                            return {
+                                ...col,
+                                render: (_: unknown, record: IUserTable) => (
+                                    <UserActions
+                                        record={record}
+                                        userRole="ADMIN"
+                                        onReload={handleReload}
+                                    />
+                                ),
+                            };
+                        }
+                        return col;
+                    }) as ColumnType<IUserTable>[]}
                     dataSource={data}
                     pagination={{
                         ...pagination,
@@ -235,7 +256,7 @@ const TableUser = () => {
                 />
             </section>
 
-            <AddNewUser
+            <UserModal
                 visible={modals.addNewUser}
                 onClose={() => toggleModal('addNewUser', false)}
                 reload={handleReload}
