@@ -149,10 +149,12 @@ const AdminLayout = () => {
                     }}
                 >
                     <Space>
-                        <Breadcrumb>
-                            <Breadcrumb.Item>Admin</Breadcrumb.Item>
-                            <Breadcrumb.Item>{activeMenu}</Breadcrumb.Item>
-                        </Breadcrumb>
+                        <Breadcrumb
+                            items={[
+                                { title: 'Admin' },
+                                { title: activeMenu },
+                            ]}
+                        />
                     </Space>
                     <Space>
                         <Dropdown menu={{ items: dropdownItems }} trigger={['click']}>
