@@ -42,3 +42,15 @@ export const getBookDetailsAPI = (_id: string) => {
 export const getBookCategoryAPI = () => {
     return axios.get<IBackendRes<string[]>>(`${baseURL}/database/category`);
 };
+
+export const fileUploadAPI = (file: any, folder: string) => {
+    const formData = new FormData();
+    formData.append('fileImg', file);
+
+    return axios.post<IBackendRes<{ fileUploaded: string }>>(`${baseURL}/file/upload`, formData, {
+        headers: {
+            'Content-Type': 'multipart/form-data',
+            'upload-type': folder,
+        },
+    });
+}
