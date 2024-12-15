@@ -108,7 +108,7 @@ const BookModal = (props: IProps) => {
         type: UserUploadType
     ) => {
         try {
-            const { onSuccess, onError } = options;
+            const { onSuccess } = options;
             const file = options.file as UploadFile;
             const res = await fileUploadAPI(file, "book");
 
@@ -131,7 +131,6 @@ const BookModal = (props: IProps) => {
             }
         } catch (error) {
             console.error('Error uploading file:', error);
-            options.onError?.(error);
             notification.error({
                 message: 'Upload Failed',
                 description: 'An error occurred during file upload. Please try again.',

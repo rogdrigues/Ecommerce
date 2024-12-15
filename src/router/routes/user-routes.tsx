@@ -9,6 +9,7 @@ import AdminLayout from "router/layouts/admin-layout";
 import ManageOrderPage from "@/pages/admin/order";
 import ManageBookPage from "@/pages/admin/book";
 import ManageUserPage from "@/pages/admin/user";
+import Dashboard from "@/pages/admin/dashboard";
 
 const routes = [
     {
@@ -45,6 +46,10 @@ const routes = [
         ),
         errorElement: <ErrorComponent error="Some error occurred." />,
         children: [
+            {
+                index: true,
+                element: <Dashboard />
+            },
             {
                 path: "book",
                 element: <ManageBookPage />

@@ -26,7 +26,7 @@ const TableBook = () => {
     const [data, setData] = useState<IBookTable[]>([]);
     const [pagination, setPagination] = useState<TablePaginationConfig>({
         current: 1,
-        pageSize: 5,
+        pageSize: 10,
         showSizeChanger: true,
         pageSizeOptions: ['1', '2', '5', '10', '20', '50'],
     });
@@ -44,7 +44,7 @@ const TableBook = () => {
     };
 
     useEffect(() => {
-        fetchData(pagination.current || 1, pagination.pageSize || 5);
+        fetchData(pagination.current || 1, pagination.pageSize || 10);
     }, []);
 
     const fetchData = async (current: number, pageSize: number, query?: Record<string, unknown>) => {
