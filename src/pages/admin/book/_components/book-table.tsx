@@ -198,19 +198,22 @@ const TableBook = () => {
                         if ((col as ColumnType<IBookTable>).key === 'actions') {
                             return {
                                 ...col,
-                                render: (_: unknown, record: IBookTable) => (
-                                    <>
+                                render: (_: unknown, record: IBookTable) => {
+                                    if (!record) return null;
+
+                                    return (
                                         <BookActions
                                             record={record}
                                             userRole="ADMIN"
                                             onReload={handleReload}
                                         />
-                                    </>
-                                ),
+                                    );
+                                },
                             };
                         }
                         return col;
                     }) as ColumnType<IBookTable>[]}
+
                     dataSource={data}
                     pagination={{
                         ...pagination,

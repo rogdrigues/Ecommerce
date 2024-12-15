@@ -70,8 +70,8 @@ declare global {
 
     interface IBookTable {
         _id: string;
-        thumbnail: string;
-        slider: string[];
+        thumbnail: any;
+        slider: any;
         mainText: string;
         author: string;
         price: number;

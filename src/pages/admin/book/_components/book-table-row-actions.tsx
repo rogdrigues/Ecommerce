@@ -1,8 +1,8 @@
+import React, { memo, useEffect, useState } from 'react';
 import { Space, Tooltip } from 'antd';
 import { EditOutlined, EyeOutlined, DeleteOutlined } from '@ant-design/icons';
 import { useAppContext } from '@/context/app.context';
 import ViewBook from './book-view-modal';
-import { useEffect, useState } from 'react';
 import BookModal from './book-form-modal';
 import DeleteBookModal from './book-delete-modal';
 
@@ -12,11 +12,12 @@ interface IProps {
     onReload?: () => void;
 }
 
-const BookActions = (props: IProps) => {
+const BookActions = memo((props: IProps) => {
     const { record, userRole, onReload = () => { } } = props;
     const { user } = useAppContext();
     const [activeModal, setActiveModal] = useState<'view' | 'update' | 'delete' | null>(null);
     const [currentRecord, setCurrentRecord] = useState<IBookTable | null>(null);
+
     const canEditOrDelete = userRole === user?.role;
 
     useEffect(() => {
@@ -66,7 +67,7 @@ const BookActions = (props: IProps) => {
                 )}
             </Space>
 
-            {currentRecord && (
+            {currentRecord && activeModal === "view" && (
                 <ViewBook
                     record={currentRecord}
                     visible={activeModal === 'view'}
@@ -74,7 +75,7 @@ const BookActions = (props: IProps) => {
                 />
             )}
 
-            {currentRecord && (
+            {currentRecord && activeModal === "update" && (
                 <BookModal
                     visible={activeModal === 'update'}
                     onClose={handleClear}
@@ -83,7 +84,7 @@ const BookActions = (props: IProps) => {
                 />
             )}
 
-            {currentRecord && (
+            {currentRecord && activeModal === "delete" && (
                 <DeleteBookModal
                     visible={activeModal === 'delete'}
                     onClose={handleClear}
@@ -93,6 +94,6 @@ const BookActions = (props: IProps) => {
             )}
         </>
     );
-};
+});
 
 export default BookActions;
