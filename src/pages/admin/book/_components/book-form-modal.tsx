@@ -2,9 +2,12 @@ import { useEffect, useState } from 'react';
 import { Modal, Form, Input, InputNumber, Button, Row, Col, Upload, Select } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 import { v4 as uuidv4 } from 'uuid';
-import type { RcFile, UploadFile, UploadProps } from 'antd/es/upload';
 import { useNotification } from '@/context/notification.context';
-import { addBookAPI, getBookCategoryAPI, updateBookAPI } from '@/services';
+import { addBookAPI, fileUploadAPI, getBookCategoryAPI, updateBookAPI } from '@/services';
+import type { RcFile, UploadFile } from 'antd/es/upload';
+import type { UploadRequestOption as RcCustomRequestOptions } from 'rc-upload/lib/interface';
+
+type UserUploadType = "thumbnail" | "slider";
 
 interface IProps {
     visible: boolean;
@@ -38,13 +41,13 @@ const BookModal = (props: IProps) => {
     useEffect(() => {
         if (bookData) {
             form.setFieldsValue(bookData);
-
+            console.log(bookData);
             setThumbnail(
                 bookData.thumbnail
                     ? [
                         {
                             uid: uuidv4(),
-                            name: 'thumbnail',
+                            name: bookData.thumbnail,
                             status: 'done',
                             url: `${import.meta.env.VITE_BACKEND_URL}/images/book/${bookData.thumbnail}`,
                         },
@@ -55,7 +58,7 @@ const BookModal = (props: IProps) => {
             setSlider(
                 bookData.slider?.map((url) => ({
                     uid: uuidv4(),
-                    name: `slider-${uuidv4()}`,
+                    name: url,
                     status: 'done',
                     url: `${import.meta.env.VITE_BACKEND_URL}/images/book/${url}`,
                 })) || []
@@ -67,73 +70,103 @@ const BookModal = (props: IProps) => {
         }
     }, [bookData, form]);
 
-    const handleThumbnailChange = ({ fileList }: { fileList: UploadFile[] }) => {
-        const updatedThumbnail = fileList.map((file) => ({
-            ...file,
-            uid: file.uid || uuidv4(),
-            url: file.response?.url || file.url,
-        }));
-        setThumbnail(updatedThumbnail);
-    };
-
-    const handleSliderChange = ({ fileList }: { fileList: UploadFile[] }) => {
-        const updatedSlider = fileList.map((file) => ({
-            ...file,
-            uid: file.uid || uuidv4(),
-            url: file.response?.url || file.url,
-        }));
-        setSlider(updatedSlider);
-    };
-
-    const handleUploadFile: UploadProps['customRequest'] = async ({ file, onSuccess }) => {
-        setTimeout(() => {
-            if (onSuccess) {
-                onSuccess('ok');
-            }
-        }, 1000);
-    };
-
-    const beforeUpload = (file: RcFile) => {
+    const validateFile = (file: RcFile) => {
         const isJpgOrPng = file.type === 'image/jpeg' || file.type === 'image/png';
+        const isLt2M = file.size / 1024 / 1024 < 2;
+
         if (!isJpgOrPng) {
             notification.error({
                 message: 'Error',
                 description: 'Only JPG/PNG files are accepted!',
             });
+            return false;
         }
-        const isLt2M = file.size / 1024 / 1024 < 2;
+
         if (!isLt2M) {
             notification.error({
                 message: 'Error',
                 description: 'Image must be smaller than 2MB!',
             });
+            return false;
         }
-        return isJpgOrPng && isLt2M ? true : Upload.LIST_IGNORE;
+
+        return true;
+    };
+
+    const beforeUpload = (file: RcFile) => validateFile(file) || Upload.LIST_IGNORE;
+
+    const handleRemove = (file: UploadFile, type: "thumbnail" | "slider") => {
+        if (type === "thumbnail") {
+            setThumbnail([]);
+        } else {
+            setSlider((prevState) => prevState.filter((item) => item.uid !== file.uid));
+        }
+    };
+
+    const handleUploadFile = async (
+        options: RcCustomRequestOptions,
+        type: UserUploadType
+    ) => {
+        try {
+            const { onSuccess, onError } = options;
+            const file = options.file as UploadFile;
+            const res = await fileUploadAPI(file, "book");
+
+            if (res && res.data) {
+                const uploadedFile: any = {
+                    uid: file.uid,
+                    name: res.data.fileUploaded,
+                    status: 'done',
+                    url: `${import.meta.env.VITE_BACKEND_URL}/images/book/${res.data.fileUploaded}`
+                }
+                if (type === "thumbnail") {
+                    setThumbnail([{ ...uploadedFile }])
+                } else {
+                    setSlider((prevState) => [...prevState, { ...uploadedFile }])
+                }
+
+                if (onSuccess) onSuccess('ok');
+            } else {
+                throw new Error(res.message || 'Upload failed');
+            }
+        } catch (error) {
+            console.error('Error uploading file:', error);
+            options.onError?.(error);
+            notification.error({
+                message: 'Upload Failed',
+                description: 'An error occurred during file upload. Please try again.',
+            });
+        }
     };
 
     const handleFinish = async (values: Omit<IBookTable, 'createdAt' | 'updatedAt'>) => {
+        if (!thumbnail.length) {
+            notification.error({
+                message: 'Validation Error',
+                description: 'Thumbnail is required!',
+            });
+            return;
+        }
+
+        if (!slider.length) {
+            notification.error({
+                message: 'Validation Error',
+                description: 'At least one slider image is required!',
+            });
+            return;
+        }
+
         setLoading(true);
         try {
-            const thumbnailUrl = thumbnail.length > 0 && thumbnail[0].response?.url
-                ? thumbnail[0].response.url
-                : thumbnail[0]?.url || '';
-
-            const sliderUrls = slider
-                .map((file) => (file.response?.url ? file.response.url : file.url))
-                .filter((url): url is string => !!url);
-
             const payload = {
                 ...values,
-                thumbnail: thumbnailUrl,
-                slider: sliderUrls,
+                thumbnail: thumbnail[0].name,
+                slider: slider.map((file) => file.name),
             };
 
-            let res;
-            if (bookData && bookData._id) {
-                res = await updateBookAPI(bookData._id, payload);
-            } else {
-                res = await addBookAPI(payload);
-            }
+            const res = bookData
+                ? await updateBookAPI(bookData._id, payload)
+                : await addBookAPI(payload);
 
             if (res && res.data) {
                 notification.success({
@@ -142,16 +175,11 @@ const BookModal = (props: IProps) => {
                         ? 'Book has been successfully updated.'
                         : 'Book has been successfully added.',
                 });
+                reload();
+                onClose();
             } else {
-                notification.error({
-                    message: 'Error',
-                    description: res?.message || 'An error occurred while processing the request.',
-                });
+                throw new Error(res?.message || 'An error occurred');
             }
-
-            form.resetFields();
-            reload();
-            onClose();
         } catch (error) {
             console.error('Error handling book:', error);
             notification.error({
@@ -165,18 +193,16 @@ const BookModal = (props: IProps) => {
         }
     };
 
-    const onClosedModal = () => {
-        form.resetFields();
-        setThumbnail([]);
-        setSlider([]);
-        onClose();
-    };
-
     return (
         <Modal
             title={bookData ? 'Update Book' : 'Add New Book'}
             open={visible}
-            onCancel={onClosedModal}
+            onCancel={() => {
+                form.resetFields();
+                setThumbnail([]);
+                setSlider([]);
+                onClose();
+            }}
             footer={null}
             centered
         >
@@ -254,9 +280,9 @@ const BookModal = (props: IProps) => {
                             <Upload
                                 listType="picture-card"
                                 maxCount={1}
-                                customRequest={handleUploadFile}
+                                customRequest={(options) => handleUploadFile(options, 'thumbnail')}
                                 beforeUpload={beforeUpload}
-                                onChange={handleThumbnailChange}
+                                onRemove={(file) => handleRemove(file, 'thumbnail')}
                                 fileList={thumbnail}
                             >
                                 {thumbnail.length === 0 && (
@@ -273,15 +299,17 @@ const BookModal = (props: IProps) => {
                             <Upload
                                 multiple
                                 listType="picture-card"
-                                customRequest={handleUploadFile}
+                                customRequest={(options) => handleUploadFile(options, 'slider')}
                                 beforeUpload={beforeUpload}
-                                onChange={handleSliderChange}
+                                onRemove={(file) => handleRemove(file, 'slider')}
                                 fileList={slider}
                             >
-                                <div>
-                                    <PlusOutlined />
-                                    <div style={{ marginTop: 8 }}>Upload</div>
-                                </div>
+                                {slider.length < 10 && (
+                                    <div>
+                                        <PlusOutlined />
+                                        <div style={{ marginTop: 8 }}>Upload</div>
+                                    </div>
+                                )}
                             </Upload>
                         </Form.Item>
                     </Col>
