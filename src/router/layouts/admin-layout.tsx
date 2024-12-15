@@ -1,18 +1,19 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import {
     AppstoreOutlined,
     ExceptionOutlined,
     HeartTwoTone,
     UserOutlined,
     DollarCircleOutlined,
-    PicCenterOutlined,
+    BorderOuterOutlined,
 } from '@ant-design/icons';
 import { Layout, Menu, Dropdown, Space, Avatar, Breadcrumb, Typography } from 'antd';
-import { Outlet, useNavigate, Link } from "react-router-dom";
+import { Outlet, useNavigate, Link } from 'react-router-dom';
 import { useAppContext } from '@/context/app.context';
 import { logoutAPI } from '@/services';
 import { useNotification } from '@/context/notification.context';
-import 'styles/app.header.scss';
+import 'styles/admin-layout.scss';
+
 const { Content, Footer, Sider } = Layout;
 const { Text } = Typography;
 
@@ -39,7 +40,7 @@ const AdminLayout = () => {
                 navigate('/');
             }
         } catch (err) {
-            console.log(err);
+            console.error(err);
         }
     };
 
@@ -86,7 +87,7 @@ const AdminLayout = () => {
     ];
 
     return (
-        <Layout style={{ minHeight: '100vh' }} className="layout-admin">
+        <Layout className="layout-admin">
             <Sider
                 theme="light"
                 collapsible
@@ -96,22 +97,15 @@ const AdminLayout = () => {
                 onMouseEnter={() => setHovered(true)}
                 onMouseLeave={() => setHovered(false)}
                 trigger={null}
+                style={{
+                    position: 'fixed',
+                    height: '100vh',
+                    left: 0,
+                }}
             >
-                <div
-                    style={{
-                        height: 25,
-                        margin: 16,
-                        fontWeight: 'bold',
-                        fontSize: '1.5rem',
-                        fontFamily: 'Montserrat, sans-serif',
-                        color: '#3b5998',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'space-between',
-                    }}
-                >
+                <div className="sidebar-header">
                     <span>PJNS</span>
-                    <PicCenterOutlined
+                    <BorderOuterOutlined
                         className={`icon-toggle ${!collapsed ? 'active' : ''}`}
                         style={{
                             cursor: 'pointer',
@@ -121,8 +115,6 @@ const AdminLayout = () => {
                         }}
                         onClick={() => setCollapsed(!collapsed)}
                     />
-
-
                 </div>
 
                 <Menu
@@ -130,48 +122,79 @@ const AdminLayout = () => {
                     mode="inline"
                     items={sidebarItems}
                     onClick={(e) => setActiveMenu(e.key)}
-                    style={{ borderRight: 'none' }}
+                    style={{ flexGrow: 1, overflowY: 'auto', height: 'calc(100vh - 135px)' }}
                 />
+                <div className="admin-footer">
+                    <Dropdown menu={{ items: dropdownItems }} trigger={['click']} placement="topLeft" arrow>
+                        <Space
+                            className="user-info"
+                            direction="horizontal"
+                            align="center"
+                            style={{
+                                width: '100%',
+                                padding: '4px 8px',
+                                borderRadius: '8px',
+                            }}
+                        >
+                            <Avatar
+                                className="avatar"
+                                src={`${import.meta.env.VITE_BACKEND_URL}/images/avatar/${user?.avatar}`}
+                            />
+                            <div style={{ textAlign: 'left', transition: 'opacity 0.5s, width 0.5s' }}>
+                                <Typography.Text
+                                    strong
+                                    style={{
+                                        display: collapsed && !hovered ? 'none' : 'block',
+                                        opacity: !collapsed || hovered ? 1 : 0,
+                                        whiteSpace: 'nowrap',
+                                        overflow: 'hidden',
+                                    }}
+                                >
+                                    {user?.fullName}
+                                </Typography.Text>
+                                <Typography.Text
+                                    type="secondary"
+                                    style={{
+                                        display: collapsed && !hovered ? 'none' : 'block',
+                                        opacity: !collapsed || hovered ? 1 : 0,
+                                        fontSize: '0.8rem',
+                                        whiteSpace: 'nowrap',
+                                        overflow: 'hidden',
+                                    }}
+                                >
+                                    {user?.role?.toUpperCase()}
+                                </Typography.Text>
+                            </div>
+                        </Space>
+                    </Dropdown>
+                </div>
             </Sider>
 
-
-            <Layout>
-                <div
-                    className="admin-header"
+            <Layout style={{
+                marginLeft: !collapsed || hovered ? 250 : 80,
+                height: '100vh',
+                overflow: 'hidden',
+                transition: 'margin-left 0.2s'
+            }}>
+                <Content
                     style={{
-                        height: "50px",
-                        borderBottom: "1px solid #ebebeb",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "space-between",
-                        padding: "0 15px",
-                        background: "#fff",
+                        padding: 16,
+                        overflowY: 'auto',
+                        height: 'calc(100vh - 145px)',
                     }}
                 >
-                    <Space>
-                        <Breadcrumb
-                            items={[
-                                { title: 'Admin' },
-                                { title: activeMenu },
-                            ]}
-                        />
-                    </Space>
-                    <Space>
-                        <Dropdown menu={{ items: dropdownItems }} trigger={['click']}>
-                            <Space style={{ cursor: "pointer" }}>
-                                <Avatar src={`${import.meta.env.VITE_BACKEND_URL}/images/avatar/${user?.avatar}`} />
-                                {user?.fullName}
-                            </Space>
-                        </Dropdown>
-                    </Space>
-                </div>
-
-                <Content style={{ padding: '20px' }}>
+                    <Breadcrumb
+                        className="breadcrumb"
+                        items={[
+                            { title: 'Admin' },
+                            { title: activeMenu },
+                        ]}
+                    />
                     <Outlet />
                 </Content>
-
-                <Footer style={{ padding: 10, textAlign: "center" }}>
-                    PRACTICE REACT - ECOMMERCE ©2024 Created by <HeartTwoTone twoToneColor="#eb2f96" />
+                <Footer className="footer">
+                    PRACTICE REACT - ECOMMERCE ©{new Date().getFullYear()} Created by{' '}
+                    <HeartTwoTone twoToneColor="#eb2f96" />
                 </Footer>
             </Layout>
         </Layout>
