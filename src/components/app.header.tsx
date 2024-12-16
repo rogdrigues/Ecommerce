@@ -1,10 +1,10 @@
-import { useState } from 'react';
 import { useNavigate } from 'react-router';
 import { Link } from 'react-router-dom';
 import { FaReact } from 'react-icons/fa';
-import { FiShoppingCart } from 'react-icons/fi';
+import { FiShoppingCart, FiSun, FiBell, FiMoon } from 'react-icons/fi';
 import { VscSearchFuzzy } from 'react-icons/vsc';
-import { Divider, Badge, Drawer, Avatar, Popover, Dropdown, Space } from 'antd';
+import { MdTranslate } from 'react-icons/md';
+import { Badge, Popover, Dropdown, Space, Avatar, Typography, Button, Empty } from 'antd';
 
 import { useAppContext } from '@/context/app.context';
 import { useNotification } from '@/context/notification.context';
@@ -13,7 +13,6 @@ import { logoutAPI } from '@/services';
 import 'styles/app.header.scss';
 
 const AppHeader = () => {
-    const [openDrawer, setOpenDrawer] = useState(false);
     const { isAuthenticated, user, setUser, setIsAuthenticated } = useAppContext();
     const navigate = useNavigate();
     const notification = useNotification();
@@ -33,139 +32,136 @@ const AppHeader = () => {
                 navigate('/');
             }
         } catch (err) {
-            console.log(err);
+            console.error(err);
         }
     };
 
-    const items = [
-        ...(user?.role === 'ADMIN' ? [{
-            label: <Link to="/admin">Trang quản trị</Link>,
-            key: 'admin',
-        }] : []),
-        {
-            label: (
-                <label style={{ cursor: 'pointer' }} onClick={() => alert("me")}>
-                    Quản lý tài khoản
-                </label>
-            ),
-            key: 'account',
-        },
-        {
-            label: <Link to="/history">Lịch sử mua hàng</Link>,
-            key: 'history',
-        },
-        {
-            label: (
-                <label style={{ cursor: 'pointer' }} onClick={handleLogout}>
-                    Đăng xuất
-                </label>
-            ),
-            key: 'logout',
-        },
-    ];
-
-    const contentPopover = () => (
-        <div className="pop-cart-body">
-            {/* 
-            <div className='pop-cart-content'>
-                {carts?.map((book, index) => (
-                    <div className='book' key={`book-${index}`}>
-                        <img src={`${import.meta.env.VITE_BACKEND_URL}/images/book/${book?.detail?.thumbnail}`} />
-                        <div>{book?.detail?.mainText}</div>
-                        <div className='price'>
-                            {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(book?.detail?.price ?? 0)}
-                        </div>
-                    </div>
-                ))}
-            </div>
-            {carts.length > 0 ? (
-                <div className='pop-cart-footer'>
-                    <button onClick={() => navigate('/order')}>Xem giỏ hàng</button>
-                </div>
-            ) : (
-                <Empty description="Không có sản phẩm trong giỏ hàng" />
-            )} 
-            */}
+    const sharedPopoverContent = (title: string) => (
+        <div className="pop-cart-content">
+            <Empty description={`Không có ${title}`} />
         </div>
     );
 
+    const carts = [];
+
+    const darkModePopoverContent = (
+        <div style={{ display: 'flex', justifyContent: 'space-between', gap: '10px' }}>
+            <Button style={{ flex: 1, background: '#f0f0f0', color: '#000' }}>
+                <Space>
+                    <FiSun style={{ color: '#ffa500' }} /> Sáng
+                </Space>
+            </Button>
+            <Button style={{ flex: 1, background: '#333', color: '#fff' }}>
+                <Space>
+                    <FiMoon style={{ color: '#808080' }} /> Tối
+                </Space>
+            </Button>
+        </div>
+    );
+
+    const languagePopoverContent = (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+            <Button style={{ display: 'flex', justifyContent: 'space-between', background: '#f0f0f0', color: '#000' }}>
+                <span>Tiếng Việt</span>
+                <MdTranslate style={{ color: '#00aaff' }} />
+            </Button>
+            <Button style={{ display: 'flex', justifyContent: 'space-between', background: '#f0f0f0', color: '#000' }}>
+                <span>日本語</span>
+                <MdTranslate style={{ color: '#ff4500' }} />
+            </Button>
+            <Button style={{ display: 'flex', justifyContent: 'space-between', background: '#f0f0f0', color: '#000' }}>
+                <span>English</span>
+                <MdTranslate style={{ color: '#32cd32' }} />
+            </Button>
+        </div>
+    );
+
+    const dropdownItems = [
+        ...(user?.role === 'ADMIN'
+            ? [{ label: <Link to="/admin">Trang quản trị</Link>, key: 'admin' }]
+            : []),
+        { label: <span>Quản lý tài khoản</span>, key: 'account' },
+        { label: <Link to="/history">Lịch sử mua hàng</Link>, key: 'history' },
+        { label: <span onClick={handleLogout}>Đăng xuất</span>, key: 'logout' },
+    ];
+
     return (
-        <>
-            <div className="header-container">
-                <header className="page-header">
-                    <div className="page-header__top">
-                        <div
-                            className="page-header__toggle"
-                            onClick={() => setOpenDrawer(true)}
-                        >
-                            ☰
-                        </div>
-                        <div className="page-header__logo">
-                            <span className="logo" onClick={() => navigate('/')}>
-                                <FaReact className="rotate icon-react" />
-                                Hỏi Dân !T
-                            </span>
-                            <VscSearchFuzzy className="icon-search" />
-                            <input
-                                className="input-search"
-                                type="text"
-                                placeholder="Bạn tìm gì hôm nay"
-                            // value={props.searchTerm}
-                            // onChange={(e) => props.setSearchTerm(e.target.value)}
-                            />
-                        </div>
+        <div className="header-container">
+            <header className="page-header">
+                <div className="header-section header-left" style={{ gap: '30px' }}>
+                    <FaReact className="logo-icon" />
+                    <span className="logo" onClick={() => navigate('/')}>PJNS</span>
+                    <Link to="#" aria-disabled="true" style={{ color: '#fff', textDecoration: 'none' }}>Home</Link>
+                    <Link to="/book" style={{ color: '#fff', textDecoration: 'none' }}>Book</Link>
+                    <Link to="/order" style={{ color: '#fff', textDecoration: 'none' }}>Order</Link>
+                </div>
+
+                <div className="header-section header-center" style={{ margin: '0 40px' }}>
+                    <div className="search-container">
+                        <input
+                            className="input-search"
+                            type="text"
+                            placeholder="Tìm sản phẩm, thương hiệu, và tên shop"
+                        />
+                        <VscSearchFuzzy className="icon-search-inside" />
                     </div>
-                    <nav className="page-header__bottom">
-                        <ul id="navigation" className="navigation">
-                            <li className="navigation__item">
-                                <Popover
-                                    className="popover-carts"
-                                    placement="topRight"
-                                    rootClassName="popover-carts"
-                                    title="Sản phẩm mới thêm"
-                                    content={contentPopover}
-                                    arrow
-                                >
-                                    <Badge
-                                        count={10} // Replace with carts?.length ?? 0 when available
-                                        size="small"
-                                        showZero
-                                    >
-                                        <FiShoppingCart className="icon-cart" />
-                                    </Badge>
-                                </Popover>
-                            </li>
-                            <li className="navigation__item mobile">
-                                <Divider type="vertical" />
-                            </li>
-                            <li className="navigation__item mobile">
-                                {!isAuthenticated ? (
-                                    <span onClick={() => navigate('/login')}>Tài Khoản</span>
-                                ) : (
-                                    <Dropdown menu={{ items }} trigger={['click']}>
-                                        <Space>
-                                            <Avatar src={`${import.meta.env.VITE_BACKEND_URL}/images/avatar/${user?.avatar}`} />
-                                            {user?.fullName}
-                                        </Space>
-                                    </Dropdown>
-                                )}
-                            </li>
-                        </ul>
-                    </nav>
-                </header>
-            </div>
-            <Drawer
-                title="Menu chức năng"
-                placement="left"
-                onClose={() => setOpenDrawer(false)}
-                open={openDrawer}
-            >
-                <p>Quản lý tài khoản</p>
-                <Divider />
-                <p onClick={handleLogout}>Đăng xuất</p>
-                <Divider />
-            </Drawer>
-        </>
+                </div>
+
+                <div className="header-section header-right" style={{ gap: '25px', paddingRight: '40px' }}>
+                    <Popover
+                        content={languagePopoverContent}
+                        title="Chuyển đổi ngôn ngữ"
+                        placement="bottomRight"
+                        arrow
+                    >
+                        <MdTranslate className="header-icon" style={{ fontSize: '1.5em', color: '#fff', cursor: 'pointer' }} />
+                    </Popover>
+                    <Popover
+                        content={darkModePopoverContent}
+                        title="Chế độ sáng tối"
+                        placement="bottomRight"
+                        arrow
+                    >
+                        <FiSun className="header-icon" style={{ fontSize: '1.5em', color: '#fff', cursor: 'pointer' }} />
+                    </Popover>
+                    <Popover
+                        content={sharedPopoverContent("thông báo")}
+                        title="Thông báo"
+                        placement="bottomRight"
+                        arrow
+                    >
+                        <Badge count={3} size="small">
+                            <FiBell className="header-icon" style={{ fontSize: '1.5em', color: '#61dafb', cursor: 'pointer' }} />
+                        </Badge>
+                    </Popover>
+                    <Popover
+                        className="popover-carts"
+                        placement="bottomRight"
+                        title="Giỏ hàng"
+                        content={sharedPopoverContent("sản phẩm trong giỏ hàng")}
+                        arrow
+                    >
+                        <Badge count={carts.length} size="small" showZero>
+                            <FiShoppingCart className="icon-cart" style={{ fontSize: '1.5em', color: '#fff', cursor: 'pointer' }} />
+                        </Badge>
+                    </Popover>
+                    {isAuthenticated ? (
+                        <Dropdown menu={{ items: dropdownItems }} trigger={['click']}>
+                            <Space>
+                                <Avatar
+                                    style={{ cursor: 'pointer', color: '#f56a00', backgroundColor: '#fde3cf' }}
+                                    src={`${import.meta.env.VITE_BACKEND_URL}/images/avatar/${user?.avatar}`} />
+                                <Typography.Text className="user-name" style={{ color: '#fff' }}>{user?.fullName}</Typography.Text>
+                            </Space>
+                        </Dropdown>
+                    ) : (
+                        <span className="login-link" onClick={() => navigate('/login')} style={{ color: '#fff' }}>
+                            Tài Khoản
+                        </span>
+                    )}
+                </div>
+            </header>
+        </div>
     );
 };
 

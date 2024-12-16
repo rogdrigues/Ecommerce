@@ -1,173 +1,105 @@
 .header-container {
     .page-header {
         display: flex;
+        justify-content: space-between; 
+        align-items: center;
         user-select: none;
-        -moz-user-select: none;
-        -webkit-user-select: none;
-        height: 55px;
-        color: #808089;
+        height: 60px; 
+        color: rgba(255, 255, 255, 0.9); 
         width: 100%;
-        max-width: 1440px;
-        margin: 0 auto;
-        line-height: 55px;
+        position: fixed; 
+        top: 0;
+        left: 0;
+        z-index: 1000;
+        background-color: #20232a; 
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); 
 
-
-        &__top {
+        .header-section {
             display: flex;
-            width: 70%;
+            align-items: center;
             padding: 0 16px;
         }
 
-        &__bottom {
+        .header-left {
             display: flex;
-        }
-
-        &__toggle {
-            display: none;
-        }
-
-        .page-header__top {
-            .page-header__logo {
-                display: flex;
-                width: 100%;
-                align-items: center;
-                gap: 10px;
-            }
-        }
-
-        .logo {
-            color: #61dafb;
-            cursor: pointer;
-            display: block;
-
-            .icon-react {
-                font-size: 30px;
-                position: relative;
-                top: 8px;
-                margin-right: 5px;
-
-
-                &.rotate {
-                    -webkit-animation: spin 10s linear infinite;
-                    -moz-animation: spin 10s linear infinite;
-                    animation: spin 10s linear infinite;
-
-                    @-moz-keyframes spin {
-                        100% {
-                            -moz-transform: rotate(360deg);
-                        }
-                    }
-
-                    @-webkit-keyframes spin {
-                        100% {
-                            -webkit-transform: rotate(360deg);
-                        }
-                    }
-
-                    @keyframes spin {
-                        100% {
-                            -webkit-transform: rotate(360deg);
-                            transform: rotate(360deg);
-                        }
-                    }
-                }
-            }
-
-            .icon-search {
-                position: relative;
-                left: 35px;
-            }
-
-
-        }
-
-        .input-search {
-            height: 25px;
-            outline: none;
-            padding: 5px 30px;
-            border-radius: 6px;
-            border: 1px solid #ddd;
-            flex: 1;
-        }
-    }
-
-    .navigation {
-        display: block;
-        opacity: 1;
-        height: auto;
-
-        &__item {
-            opacity: 0.8;
-            display: inline-block;
-            padding: 0 5px;
-
-            &:hover {
-                cursor: pointer;
-                opacity: 1;
-            }
-
-
-        }
-
-        .icon-cart {
-            font-size: 20px;
-            top: 5px;
-            position: relative;
-            color: #61dafb;
-        }
-    }
-
-    @media (max-width: 600px) {
-        .page-header {
-            display: flex;
+            align-items: center;
+            gap: 10px;
 
             .logo {
-                display: none;
+                color: #ffffff; 
+                font-size: 1.5em;
+                font-weight: bold;
+                cursor: pointer;
+                display: flex;
+                align-items: center;
             }
 
-            &__toggle {
-                display: block;
-                font-size: 2em;
-                margin-right: 15px;
-            }
-
-            .page-header__bottom {
-                justify-content: center;
-                flex-grow: 1;
+            .logo-icon {
+                color: #ffffff; 
             }
         }
 
-        .navigation {
-            display: block;
-            opacity: 1;
-            height: auto;
+        .header-center {
+            flex: 1;
+            display: flex;
+            justify-content: center;
 
-            &__item {
-                opacity: 0.8;
-                display: inline-block;
+            .search-container {
+                position: relative;
+                width: 100%;
+                max-width: 700px;
 
+                .input-search {
+                    height: 40px;
+                    width: 100%;
+                    padding: 5px 15px 5px 40px; 
+                    border-radius: 20px;
+                    background: #333;
+                    color: #fff;
+                    border: none;
+                    outline: none;
+                    transition: all 0.3s ease;
+
+                    &:focus {
+                        background: #444;
+                    }
+                }
+
+                .icon-search-inside {
+                    position: absolute;
+                    left: 15px;
+                    top: 50%;
+                    transform: translateY(-50%);
+                    font-size: 1.2em;
+                    color: #61dafb;
+                }
+            }
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 40px;
+            padding-right: 20px;
+
+            .menu-link {
+                color: #fff;
+                font-size: 0.9em;
+                cursor: pointer;
                 &:hover {
-                    cursor: pointer;
-                    opacity: 1;
+                    color: #61dafb;
                 }
+            }
 
-                &.mobile {
-                    display: none;
-                }
+            .icon-cart, .icon-avatar {
+                font-size: 1.3em;
+                color: #ffffff; 
+                cursor: pointer;
+            }
+
+            .user-name {
+                color: #ffffff; 
             }
         }
     }
-}
-
-.icon-toggle {
-    opacity: 1;
-    transition: all 0.3s ease-in-out;
-    padding: 5px;
-    border-radius: 50%; 
-}
-
-.icon-toggle.active {
-    background-color: rgba(0, 123, 255, 0.2);
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); 
-    transition: all 0.3s ease-in-out;
 }
