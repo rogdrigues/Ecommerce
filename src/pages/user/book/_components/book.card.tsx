@@ -1,36 +1,50 @@
+import { Image } from "antd";
 import { FaShoppingCart, FaInfoCircle } from "react-icons/fa";
 
-interface IProps {
+interface IBookCardProps {
     book: {
-        id: number;
-        title: string;
+        _id: string;
+        mainText: string;
         price: number;
-        rating?: number;
-        reviews?: number;
         sold?: number;
-        image: string;
+        thumbnail: string;
+        category?: string;
+        quantity?: number;
     };
 }
 
-const BookCard = (props: IProps) => {
-    const { book } = props;
+const BookCard = ({ book }: IBookCardProps) => {
+    const backendURL = import.meta.env.VITE_BACKEND_URL;
     return (
         <div className="book-card">
             <div className="book-image">
-                <img src={book.image} alt={book.title} />
+                <Image
+                    width={150}
+                    height={200}
+                    src={`${backendURL}/images/book/${book?.thumbnail}`}
+                    alt={book.mainText}
+                    style={{ objectFit: 'contain', borderRadius: '8px' }}
+                    preview={false}
+                />
             </div>
             <div className="book-details">
-                <h4 className="book-title">{book.title}</h4>
-                <p className="book-price">Giá: {book.price} VND</p>
+                <h4 className="book-title">{book.mainText}</h4>
+                <p className="book-price">Giá: {book.price.toLocaleString()} VND</p>
                 <div className="book-meta">
-                    <span className="book-rating">
-                        ⭐ {book.rating} ({book.reviews} đánh giá)
-                    </span>
-                    <span className="book-sold">Đã bán: {book.sold}</span>
+                    {book.category && (
+                        <span className="book-tag">
+                            <span className="tag">{book.category}</span>
+                        </span>
+                    )}
+                    {book.quantity !== undefined && (
+                        <span className="book-quantity">
+                            Số lượng: {book.quantity}
+                        </span>
+                    )}
                 </div>
                 <div className="book-actions">
                     <button className="add-to-cart-btn">
-                        <FaShoppingCart /> Thêm vào
+                        <FaShoppingCart /> Thêm vào giỏ
                     </button>
                     <button className="view-details-btn">
                         <FaInfoCircle /> Xem chi tiết
