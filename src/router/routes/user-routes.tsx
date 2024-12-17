@@ -1,5 +1,4 @@
 import AboutPage from "@/pages/user/about";
-import BookPage from "@/pages/user/book";
 import HomePage from "@/pages/user/home";
 import UserLayout from "router/layouts/user-layout";
 import ProtectedRoute from "router/guard/protected-route";
@@ -10,6 +9,7 @@ import ManageOrderPage from "@/pages/admin/order";
 import ManageBookPage from "@/pages/admin/book";
 import ManageUserPage from "@/pages/admin/user";
 import Dashboard from "@/pages/admin/dashboard";
+import BookUserPage from "@/pages/user/book";
 
 const routes = [
     {
@@ -27,7 +27,7 @@ const routes = [
             },
             {
                 path: "book",
-                element: <BookPage />
+                element: <BookUserPage />
             },
             {
                 path: "about",

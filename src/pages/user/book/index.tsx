@@ -1,9 +1,11 @@
-const BookPage = () => {
+import BookPage from "./_components/book.page";
+
+const BookUserPage = () => {
     return (
         <div>
-            <h1>BookPage Page</h1>
+            <BookPage />
         </div>
     );
 }
 
-export default BookPage;
+export default BookUserPage;
