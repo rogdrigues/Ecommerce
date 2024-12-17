@@ -1,69 +1,111 @@
-import { useState } from 'react';
-import { Tabs, Pagination } from 'antd';
+import { useState, useEffect } from 'react';
+import { Tabs, Pagination, Spin } from 'antd';
 import BookFilterSidebar from './book.filter.sidebar';
 import BookCard from './book.card';
+import { getBooksAPI } from '@/services/book.service';
 import 'styles/book.page.scss';
 
 const { TabPane } = Tabs;
 
 const BookPage = () => {
-    const [books, setBooks] = useState([
-        { id: 1, title: 'Book 1', price: 200, rating: 4, image: '/images/book1.png' },
-        { id: 2, title: 'Book 2', price: 150, rating: 5, image: '/images/book2.png' },
-        { id: 3, title: 'Book 3', price: 300, rating: 3, image: '/images/book3.png' },
-        { id: 4, title: 'Book 3', price: 300, rating: 3, image: '/images/book3.png' },
-        { id: 5, title: 'Book 3', price: 300, rating: 3, image: '/images/book3.png' },
-    ]);
-
+    const [books, setBooks] = useState<any[]>([]);
     const [activeTab, setActiveTab] = useState('default');
-    const [currentPage, setCurrentPage] = useState(1);
-    const booksPerPage = 30;
+    const [pagination, setPagination] = useState({
+        current: 1,
+        pageSize: 30,
+        total: 0,
+    });
+    const [loading, setLoading] = useState(false);
+
+    const fetchBooks = async (newPagination = pagination, query?: Record<string, unknown>) => {
+        setLoading(true);
+        try {
+            const response = await getBooksAPI(newPagination.current, newPagination.pageSize, query);
+            setTimeout(() => {
+                setBooks(response.data?.result || []);
+                setPagination({
+                    ...newPagination,
+                    total: response.data?.meta.total || 0,
+                });
+                setLoading(false);
+            }, 500);
+        } catch (error) {
+            console.error('Error fetching books:', error);
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchBooks();
+    }, []);
 
     const sortBooks = (criteria: string) => {
-        let sortedBooks = [...books];
-        if (criteria === 'low-to-high') {
-            sortedBooks.sort((a, b) => a.price - b.price);
-        } else if (criteria === 'high-to-low') {
-            sortedBooks.sort((a, b) => b.price - a.price);
+        let query = {};
+        switch (criteria) {
+            case 'default':
+                query = { sort: '-sold' };
+                break;
+            case 'new':
+                query = { sort: '-createdAt' };
+                break;
+            case 'low-to-high':
+                query = { sort: 'price' };
+                break;
+            case 'high-to-low':
+                query = { sort: '-price' };
+                break;
+            default:
+                query = { sort: '-createdAt' };
         }
-        setBooks(sortedBooks);
+        fetchBooks({ ...pagination, current: 1 }, query);
         setActiveTab(criteria);
     };
 
-    const handlePageChange = (page: number) => {
-        setCurrentPage(page);
+    const handlePageChange = (page: number, pageSize?: number) => {
+        const newPagination = { ...pagination, current: page, pageSize: pageSize || pagination.pageSize };
+        fetchBooks(newPagination);
     };
 
-    const startIndex = (currentPage - 1) * booksPerPage;
-    const displayedBooks = books.slice(startIndex, startIndex + booksPerPage);
+    const handleApplyFilter = (filters: { category?: string[]; price?: { $gte?: number; $lte?: number } }) => {
+        const query: Record<string, any> = { ...filters };
+        fetchBooks({ ...pagination, current: 1 }, query);
+    };
 
     return (
         <div className="books-page">
-            <BookFilterSidebar />
+            <BookFilterSidebar onApplyFilter={handleApplyFilter} />
             <div className="books-content">
                 <div className="books-header">
-                    <Tabs defaultActiveKey="default" onChange={(key) => setActiveTab(key)}>
+                    <Tabs defaultActiveKey="default" onChange={(key) => sortBooks(key)}>
                         <TabPane tab="Phổ biến" key="default" />
                         <TabPane tab="Hàng Mới" key="new" />
-                        <TabPane tab="Giá Thấp Đến Cao" key="low-to-high" onClick={() => sortBooks('low-to-high')} />
-                        <TabPane tab="Giá Cao Đến Thấp" key="high-to-low" onClick={() => sortBooks('high-to-low')} />
+                        <TabPane tab="Giá Thấp Đến Cao" key="low-to-high" />
+                        <TabPane tab="Giá Cao Đến Thấp" key="high-to-low" />
                     </Tabs>
-                    <p style={{ marginLeft: '20px' }}>{books.length} kết quả</p>
+                    <p style={{ marginLeft: '20px' }}>{pagination.total} kết quả</p>
                 </div>
 
-                <div className="books-grid">
-                    {displayedBooks.map((book) => (
-                        <BookCard key={book.id} book={book} />
-                    ))}
-                </div>
+                {loading ? (
+                    <div style={{ textAlign: 'center', margin: '50px 0' }}>
+                        <Spin size="large" />
+                    </div>
+                ) : (
+                    <>
+                        <div className="books-grid">
+                            {books.map((book) => (
+                                <BookCard key={book._id} book={book} />
+                            ))}
+                        </div>
 
-                <Pagination
-                    current={currentPage}
-                    total={books.length}
-                    pageSize={booksPerPage}
-                    onChange={handlePageChange}
-                    style={{ justifyContent: 'center', marginTop: '20px' }}
-                />
+                        <Pagination
+                            current={pagination.current}
+                            total={pagination.total}
+                            pageSize={pagination.pageSize}
+                            onChange={handlePageChange}
+                            style={{ justifyContent: 'center', marginTop: '20px' }}
+                        />
+                    </>
+                )}
             </div>
         </div>
     );

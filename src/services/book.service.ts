@@ -7,18 +7,12 @@ export const getBooksAPI = (current: number, pageSize: number, query?: Record<st
     const queryString = query
         ? Object.entries(query)
             .map(([key, value]) => {
-                if (typeof value === 'object' && value.$regex) {
-                    return `${key}=${encodeURIComponent(`/${value.$regex}/${value.$options || ''}`)}`;
-                }
-                if (typeof value === 'object' && value.$gte) {
-                    return `${key}[$gte]=${encodeURIComponent(value.$gte)}&${key}[$lte]=${encodeURIComponent(value.$lte)}`;
-                }
-                return `${key}=${encodeURIComponent(value)}`;
+                return `${encodeURIComponent(key)}=${encodeURIComponent(value)}`;
             })
-            .join('&')
-        : '';
+            .join("&")
+        : "";
 
-    const url = `${baseURL}/book?current=${current}&pageSize=${pageSize}&sort=-createdAt${queryString ? `&${queryString}` : ''}`;
+    const url = `${baseURL}/book?current=${current}&pageSize=${pageSize}${queryString ? `&${queryString}` : ''}`;
 
     return axios.get<IBackendRes<IModelPaginate<IBookTable>>>(url);
 };

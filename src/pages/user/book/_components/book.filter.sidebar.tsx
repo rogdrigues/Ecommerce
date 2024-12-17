@@ -1,16 +1,55 @@
-import React, { useState } from "react";
-import { FaBook, FaTag, FaStar } from "react-icons/fa";
+import React, { useEffect, useState } from "react";
+import { FaBook, FaTag } from "react-icons/fa";
 import { Typography } from "antd";
 import "styles/book.page.scss";
+import { getBookCategoryAPI } from "@/services";
 
 const { Title, Text } = Typography;
 
-const BookFilterSidebar = () => {
+interface IFilterProps {
+    onApplyFilter: (filters: { category?: string[]; price?: { $gte?: number; $lte?: number } }) => void;
+}
+
+const BookFilterSidebar = ({ onApplyFilter }: IFilterProps) => {
     const [priceRange, setPriceRange] = useState({ min: "", max: "" });
+    const [categories, setCategories] = useState<string[]>([]);
+    const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+
+    useEffect(() => {
+        const fetchCategories = async () => {
+            try {
+                const res = await getBookCategoryAPI();
+                setCategories(res.data || []);
+            } catch (error) {
+                console.error("Error fetching categories:", error);
+            }
+        };
+        fetchCategories();
+    }, []);
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setPriceRange({ ...priceRange, [e.target.name]: e.target.value });
     };
+
+    const handleCategoryChange = (category: string) => {
+        setSelectedCategories((prev) =>
+            prev.includes(category) ? prev.filter((item) => item !== category) : [...prev, category]
+        );
+    };
+
+    const handleApplyFilter = () => {
+        const query: Record<string, any> = {};
+
+        if (selectedCategories.length > 0) {
+            query.category = selectedCategories.join(",");
+        }
+
+        if (priceRange.min) query["price>"] = Number(priceRange.min);
+        if (priceRange.max) query["price<"] = Number(priceRange.max);
+
+        onApplyFilter(query);
+    };
+
 
     return (
         <div className="books-sidebar">
@@ -21,21 +60,17 @@ const BookFilterSidebar = () => {
                     <FaBook className="filter-icon" />
                     <Text strong>Danh mục sản phẩm</Text>
                 </div>
-                <label>
-                    <input type="radio" name="category" />
-                    <span className="custom-radio"></span>
-                    <Text>Tiểu thuyết</Text>
-                </label>
-                <label>
-                    <input type="radio" name="category" />
-                    <span className="custom-radio"></span>
-                    <Text>Sách giáo khoa</Text>
-                </label>
-                <label>
-                    <input type="radio" name="category" />
-                    <span className="custom-radio"></span>
-                    <Text>Kỹ năng sống</Text>
-                </label>
+                {categories.map((category) => (
+                    <label key={category}>
+                        <input
+                            type="checkbox"
+                            checked={selectedCategories.includes(category)}
+                            onChange={() => handleCategoryChange(category)}
+                        />
+                        <span className="custom-checkbox"></span>
+                        <Text>{category}</Text>
+                    </label>
+                ))}
             </div>
 
             <div className="filter-section">
@@ -71,57 +106,11 @@ const BookFilterSidebar = () => {
                         cursor: "pointer",
                         width: "100%",
                     }}
-                    onClick={() => { }}
+                    onClick={handleApplyFilter}
                 >
                     Áp dụng
                 </button>
             </div>
-
-            <div className="filter-section">
-                <div className="filter-header">
-                    <FaTag className="filter-icon" />
-                    <Text strong>Thể loại sách</Text>
-                </div>
-                <label>
-                    <input type="checkbox" />
-                    <span className="custom-checkbox"></span>
-                    <Text>Văn học</Text>
-                </label>
-                <label>
-                    <input type="checkbox" />
-                    <span className="custom-checkbox"></span>
-                    <Text>Khoa học</Text>
-                </label>
-                <label>
-                    <input type="checkbox" />
-                    <span className="custom-checkbox"></span>
-                    <Text>Lịch sử</Text>
-                </label>
-            </div>
-
-            <div className="filter-section">
-                <div className="filter-header">
-                    <FaStar className="filter-icon" />
-                    <Text strong>Đánh giá</Text>
-                </div>
-                {[4, 3, 2, 1].map((rating) => (
-                    <label key={rating}>
-                        <input type="radio" name="rating" />
-                        <div className="rating-stars">
-                            {Array.from({ length: 5 }, (_, index) => (
-                                <FaStar
-                                    key={index}
-                                    color={index < rating ? "#ffa500" : "#ccc"}
-                                    className="star-icon"
-                                />
-                            ))}
-                            <Text>& up</Text>
-                        </div>
-                    </label>
-                ))}
-            </div>
-
-            <div className="clear-button">Xóa tất cả bộ lọc</div>
         </div>
     );
 };
