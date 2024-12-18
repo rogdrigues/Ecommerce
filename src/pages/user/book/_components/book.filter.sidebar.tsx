@@ -8,9 +8,10 @@ const { Title, Text } = Typography;
 
 interface IFilterProps {
     onApplyFilter: (filters: { category?: string[]; price?: { $gte?: number; $lte?: number } }) => void;
+    onResetFilter: () => void;
 }
 
-const BookFilterSidebar = ({ onApplyFilter }: IFilterProps) => {
+const BookFilterSidebar = ({ onApplyFilter, onResetFilter }: IFilterProps) => {
     const [priceRange, setPriceRange] = useState({ min: "", max: "" });
     const [categories, setCategories] = useState<string[]>([]);
     const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
@@ -27,22 +28,23 @@ const BookFilterSidebar = ({ onApplyFilter }: IFilterProps) => {
         fetchCategories();
     }, []);
 
-    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setPriceRange({ ...priceRange, [e.target.name]: e.target.value });
-    };
-
     const handleCategoryChange = (category: string) => {
-        setSelectedCategories((prev) =>
-            prev.includes(category) ? prev.filter((item) => item !== category) : [...prev, category]
-        );
+        setSelectedCategories((prev) => {
+            const newCategories = prev.includes(category)
+                ? prev.filter((item) => item !== category)
+                : [...prev, category];
+            onApplyFilter({ category: newCategories });
+            return newCategories;
+        });
     };
 
-    const handleApplyFilter = () => {
-        const query: Record<string, any> = {};
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const { name, value } = e.target;
+        setPriceRange((prev) => ({ ...prev, [name]: value }));
+    };
 
-        if (selectedCategories.length > 0) {
-            query.category = selectedCategories.join(",");
-        }
+    const handleApplyPriceFilter = () => {
+        const query: Record<string, any> = {};
 
         if (priceRange.min) query["price>"] = Number(priceRange.min);
         if (priceRange.max) query["price<"] = Number(priceRange.max);
@@ -50,6 +52,11 @@ const BookFilterSidebar = ({ onApplyFilter }: IFilterProps) => {
         onApplyFilter(query);
     };
 
+    const handleResetFilters = () => {
+        setSelectedCategories([]);
+        setPriceRange({ min: "", max: "" });
+        onApplyFilter({});
+    };
 
     return (
         <div className="books-sidebar">
@@ -106,10 +113,26 @@ const BookFilterSidebar = ({ onApplyFilter }: IFilterProps) => {
                         cursor: "pointer",
                         width: "100%",
                     }}
-                    onClick={handleApplyFilter}
+                    onClick={handleApplyPriceFilter}
                 >
-                    Áp dụng
+                    Áp dụng giá
                 </button>
+            </div>
+
+            <div
+                className="clear-button"
+                style={{
+                    marginTop: "20px",
+                    padding: "8px 10px",
+                    backgroundColor: "#ff5e5e",
+                    color: "#fff",
+                    textAlign: "center",
+                    borderRadius: "4px",
+                    cursor: "pointer",
+                }}
+                onClick={handleResetFilters}
+            >
+                Xóa bộ lọc
             </div>
         </div>
     );
