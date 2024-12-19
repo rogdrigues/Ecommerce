@@ -65,6 +65,7 @@ const useBookDetail = (id: string) => {
 const BookDetail = () => {
     const { id } = useParams<{ id: string }>();
     const { book, price, maxPrice, updatePrice, selectedVersion, loading } = useBookDetail(id!);
+    const [quantity, setQuantity] = useState(1);
 
     const images = book ? [
         {
@@ -76,6 +77,18 @@ const BookDetail = () => {
             thumbnail: `${import.meta.env.VITE_BACKEND_URL}/images/book/${image}`,
         })),
     ] : [];
+
+    const handleQuantityChange = (type: string) => {
+        if (type === 'increase') {
+            if (quantity < book.quantity) {
+                setQuantity(quantity + 1);
+            }
+        } else {
+            if (quantity > 1) {
+                setQuantity(quantity - 1);
+            }
+        }
+    };
 
     if (loading) {
         return (
@@ -157,9 +170,9 @@ const BookDetail = () => {
 
                     <div className="book-detail-quantity">
                         <span>Số lượng:</span>
-                        <MinusCircleOutlined className="icon" />
-                        <InputNumber min={1} max={book.quantity} defaultValue={1} className="input-number" />
-                        <PlusCircleOutlined className="icon" />
+                        <MinusCircleOutlined className="icon" onClick={() => handleQuantityChange('decrease')} />
+                        <InputNumber min={1} max={book.quantity} value={quantity} defaultValue={1} readOnly controls={false} className="input-number" />
+                        <PlusCircleOutlined className="icon" onClick={() => handleQuantityChange('increase')} />
                         <span className="available">({book.quantity} sẵn có)</span>
                     </div>
 
