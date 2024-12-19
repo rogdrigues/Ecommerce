@@ -13,6 +13,9 @@ import {
 } from "@ant-design/icons";
 import "react-image-gallery/styles/css/image-gallery.css";
 import "styles/book.page.detail.scss";
+import { useNotification } from "@/context/notification.context";
+import { useCart } from "@/context/cart.context";
+
 
 const useBookDetail = (id: string) => {
     const [book, setBook] = useState<any>(null);
@@ -66,6 +69,8 @@ const BookDetail = () => {
     const { id } = useParams<{ id: string }>();
     const { book, price, maxPrice, updatePrice, selectedVersion, loading } = useBookDetail(id!);
     const [quantity, setQuantity] = useState(1);
+    const notification = useNotification();
+    const { addToCart } = useCart();
 
     const images = book ? [
         {
@@ -89,6 +94,19 @@ const BookDetail = () => {
             }
         }
     };
+
+    const handleAddToCart = () => {
+        if (!selectedVersion) {
+            notification.warning({
+                message: "Lưu ý",
+                description: "Vui lòng chọn phiên bản trước khi thêm vào giỏ hàng",
+            });
+            return;
+        }
+
+        addToCart(book, quantity);
+    };
+
 
     if (loading) {
         return (
@@ -177,7 +195,7 @@ const BookDetail = () => {
                     </div>
 
                     <div className="book-detail-actions">
-                        <Button className="ant-btn-primary">
+                        <Button className="ant-btn-primary" onClick={handleAddToCart}>
                             <ShoppingCartOutlined /> Thêm vào giỏ hàng
                         </Button>
                         <Button className="ant-btn-primary buy-now" disabled={!selectedVersion}>

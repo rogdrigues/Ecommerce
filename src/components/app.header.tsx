@@ -4,18 +4,25 @@ import { FaReact } from 'react-icons/fa';
 import { FiShoppingCart, FiSun, FiBell, FiMoon } from 'react-icons/fi';
 import { VscSearchFuzzy } from 'react-icons/vsc';
 import { MdTranslate } from 'react-icons/md';
-import { Badge, Popover, Dropdown, Space, Avatar, Typography, Button, Empty } from 'antd';
+import { Badge, Popover, Dropdown, Space, Avatar, Typography, Button, Empty, List } from 'antd';
 
 import { useAppContext } from '@/context/app.context';
 import { useNotification } from '@/context/notification.context';
 import { logoutAPI } from '@/services';
 
 import 'styles/app.header.scss';
+import { useEffect, useState } from 'react';
 
 const AppHeader = () => {
     const { isAuthenticated, user, setUser, setIsAuthenticated } = useAppContext();
     const navigate = useNavigate();
     const notification = useNotification();
+    const [carts, setCarts] = useState<ICart[]>([]);
+
+    useEffect(() => {
+        const cartData = localStorage.getItem("cart");
+        setCarts(cartData ? JSON.parse(cartData) : []);
+    }, []);
 
     const handleLogout = async () => {
         try {
@@ -42,7 +49,64 @@ const AppHeader = () => {
         </div>
     );
 
-    const carts = [];
+    const removeFromCart = (id: string) => {
+        const updatedCarts = carts.filter((item) => item._id !== id);
+        setCarts(updatedCarts);
+        localStorage.setItem("cart", JSON.stringify(updatedCarts));
+    };
+
+    const cartPopoverContent = (
+        <div style={{ maxWidth: "350px", width: "100%" }}>
+            {carts.length > 0 ? (
+                <List
+                    dataSource={carts}
+                    renderItem={(item) => (
+                        <List.Item
+                            actions={[
+                                <Button
+                                    danger
+                                    size="small"
+                                    onClick={() => removeFromCart(item._id)}
+                                >
+                                    Xóa
+                                </Button>,
+                            ]}
+                        >
+                            <List.Item.Meta
+                                avatar={
+                                    <Avatar
+                                        src={`${import.meta.env.VITE_BACKEND_URL}/images/book/${item.book.thumbnail}`}
+                                        alt={item.book.mainText}
+                                    />
+                                }
+                                title={
+                                    <Typography.Text
+                                        ellipsis={{
+                                            tooltip: item.book.mainText,
+                                        }}
+                                        style={{ maxWidth: "180px" }}
+                                    >
+                                        {item.book.mainText}
+                                    </Typography.Text>
+                                }
+                                description={
+                                    <div>
+                                        <Typography.Text strong style={{ display: "block", marginBottom: "5px" }}>
+                                            Giá: {item.book.price.toLocaleString()} VND
+                                        </Typography.Text>
+                                        <Typography.Text>
+                                            Số lượng: {item.quantity}
+                                        </Typography.Text>
+                                    </div>
+                                } />
+                        </List.Item>
+                    )}
+                />
+            ) : (
+                <Typography.Text>Không có sản phẩm nào trong giỏ hàng.</Typography.Text>
+            )}
+        </div>
+    );
 
     const darkModePopoverContent = (
         <div style={{ display: 'flex', justifyContent: 'space-between', gap: '10px' }}>
@@ -138,7 +202,7 @@ const AppHeader = () => {
                         className="popover-carts"
                         placement="bottomRight"
                         title="Giỏ hàng"
-                        content={sharedPopoverContent("sản phẩm trong giỏ hàng")}
+                        content={cartPopoverContent}
                         arrow
                     >
                         <Badge count={carts.length} size="small" showZero>
