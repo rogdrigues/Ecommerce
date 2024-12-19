@@ -1,5 +1,6 @@
 import { Image } from "antd";
 import { FaShoppingCart, FaInfoCircle } from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
 
 interface IBookCardProps {
     book: {
@@ -15,6 +16,7 @@ interface IBookCardProps {
 
 const BookCard = ({ book }: IBookCardProps) => {
     const backendURL = import.meta.env.VITE_BACKEND_URL;
+    const navigate = useNavigate();
     return (
         <div className="book-card">
             <div className="book-image">
@@ -46,7 +48,7 @@ const BookCard = ({ book }: IBookCardProps) => {
                     <button className="add-to-cart-btn">
                         <FaShoppingCart /> Thêm vào giỏ
                     </button>
-                    <button className="view-details-btn">
+                    <button className="view-details-btn" onClick={() => { navigate(`/book/${book._id}`) }}>
                         <FaInfoCircle /> Xem chi tiết
                     </button>
                 </div>

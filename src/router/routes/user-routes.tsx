@@ -10,6 +10,7 @@ import ManageBookPage from "@/pages/admin/book";
 import ManageUserPage from "@/pages/admin/user";
 import Dashboard from "@/pages/admin/dashboard";
 import BookUserPage from "@/pages/user/book";
+import BookDetail from "@/pages/user/book/book.detail";
 
 const routes = [
     {
@@ -28,6 +29,10 @@ const routes = [
             {
                 path: "book",
                 element: <BookUserPage />
+            },
+            {
+                path: "book/:id",
+                element: <BookDetail />
             },
             {
                 path: "about",
