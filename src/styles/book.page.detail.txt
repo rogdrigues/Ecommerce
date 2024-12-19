@@ -1,0 +1,103 @@
+.book-detail {
+    display: flex;
+    gap: 40px;
+    padding: 40px;
+
+    .book-detail-image {
+        flex: 1; /* Tăng kích thước cho phần ảnh */
+        .image-gallery {
+            border: 1px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 10px;
+            background-color: #f9f9f9; /* Màu nền nhạt hơn */
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Đổ bóng nhẹ */
+        }
+    }
+
+    .book-detail-info {
+        flex: 2; /* Chiếm nhiều không gian hơn */
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+
+        h1 {
+            font-size: 1.8rem; /* Giảm kích thước font */
+            font-weight: bold;
+            color: #333;
+        }
+
+        .book-meta-info {
+            display: flex;
+            gap: 15px;
+            font-size: 1rem; /* Kích thước chung cho phần meta */
+            color: #666;
+
+            .rating {
+                display: flex;
+                align-items: center;
+                gap: 5px;
+
+                .ant-rate {
+                    font-size: 1rem;
+                    color: #ffa500;
+                }
+            }
+
+            .sold {
+                display: flex;
+                align-items: center;
+            }
+        }
+
+        .price {
+            font-size: 1.6rem; /* Điều chỉnh kích thước font */
+            color: #e53935; /* Màu đỏ nổi bật */
+            font-weight: bold;
+        }
+
+        p {
+            margin: 0;
+            font-size: 1.2rem;
+            color: #666;
+        }
+
+        .book-detail-quantity {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+
+            span {
+                font-size: 1.2rem;
+                color: #333;
+            }
+
+            input {
+                width: 60px;
+                padding: 5px;
+                font-size: 1rem;
+                border: 1px solid #ccc;
+                border-radius: 5px;
+            }
+        }
+
+        .book-detail-actions {
+            display: flex;
+            gap: 20px;
+
+            button {
+                padding: 10px 20px;
+                font-size: 1.2rem;
+                border-radius: 5px;
+            }
+
+            .ant-btn-primary {
+                background-color: #1976d2;
+                border: none;
+
+                &:hover {
+                    background-color: #1565c0;
+                }
+            }
+        }
+    }
+}
