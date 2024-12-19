@@ -11,18 +11,13 @@ import { useNotification } from '@/context/notification.context';
 import { logoutAPI } from '@/services';
 
 import 'styles/app.header.scss';
-import { useEffect, useState } from 'react';
+import { useCart } from '@/context/cart.context';
 
 const AppHeader = () => {
     const { isAuthenticated, user, setUser, setIsAuthenticated } = useAppContext();
     const navigate = useNavigate();
     const notification = useNotification();
-    const [carts, setCarts] = useState<ICart[]>([]);
-
-    useEffect(() => {
-        const cartData = localStorage.getItem("cart");
-        setCarts(cartData ? JSON.parse(cartData) : []);
-    }, []);
+    const { cart, removeFromCart } = useCart();
 
     const handleLogout = async () => {
         try {
@@ -49,24 +44,22 @@ const AppHeader = () => {
         </div>
     );
 
-    const removeFromCart = (id: string) => {
-        const updatedCarts = carts.filter((item) => item._id !== id);
-        setCarts(updatedCarts);
-        localStorage.setItem("cart", JSON.stringify(updatedCarts));
+    const handleRemoveFromCart = (id: string) => {
+        removeFromCart(id);
     };
 
     const cartPopoverContent = (
-        <div style={{ maxWidth: "350px", width: "100%" }}>
-            {carts.length > 0 ? (
+        <div style={{ width: "300px" }}>
+            {cart.length > 0 ? (
                 <List
-                    dataSource={carts}
+                    dataSource={cart}
                     renderItem={(item) => (
                         <List.Item
                             actions={[
                                 <Button
                                     danger
                                     size="small"
-                                    onClick={() => removeFromCart(item._id)}
+                                    onClick={() => handleRemoveFromCart(item._id)}
                                 >
                                     Xóa
                                 </Button>,
@@ -92,7 +85,11 @@ const AppHeader = () => {
                                 description={
                                     <div>
                                         <Typography.Text strong style={{ display: "block", marginBottom: "5px" }}>
-                                            Giá: {item.book.price.toLocaleString()} VND
+                                            Giá:{" "}
+                                            {new Intl.NumberFormat("vi-VN", {
+                                                style: "currency",
+                                                currency: "VND",
+                                            }).format(item.book.price * item.quantity)}
                                         </Typography.Text>
                                         <Typography.Text>
                                             Số lượng: {item.quantity}
@@ -205,7 +202,7 @@ const AppHeader = () => {
                         content={cartPopoverContent}
                         arrow
                     >
-                        <Badge count={carts.length} size="small" showZero>
+                        <Badge count={cart.length} size="small" showZero>
                             <FiShoppingCart className="icon-cart" style={{ fontSize: '1.5em', color: '#fff', cursor: 'pointer' }} />
                         </Badge>
                     </Popover>
