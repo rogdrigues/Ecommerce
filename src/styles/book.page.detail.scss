@@ -1,0 +1,181 @@
+.book-detail-container {
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    max-width: 1400px;
+    margin: 0 auto;
+
+    .book-detail {
+        display: flex;
+        gap: 40px;
+        padding: 40px;
+
+        &-image {
+            flex: 1;
+
+            .image-gallery-button {
+                position: absolute;
+                top: 50%;
+                z-index: 1;
+                width: 40px;
+                height: 40px;
+                border-radius: 50%;
+                border: none;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: #fff;
+                box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+                cursor: pointer;
+
+                &:disabled {
+                    background-color: #ddd;
+                    cursor: not-allowed;
+                }
+
+                &:not(:disabled) {
+                    background-color: #ff5722;
+                }
+
+                &.left {
+                    left: 10px;
+                }
+
+                &.right {
+                    right: 10px;
+                }
+            }
+        }
+
+        &-info {
+            flex: 2;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+
+            .book-detail-title {
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+
+                h1 {
+                    font-size: 1.6rem;
+                    font-weight: bold;
+                    color: #333;
+                }
+
+                .tag {
+                    font-size: 1rem;
+                    padding: 2px 8px;
+                    background-color: #e0f7fa;
+                    color: #00796b;
+                    border: none;
+                    width: fit-content;
+                }
+            }
+
+            .book-meta-info {
+                display: flex;
+                gap: 15px;
+                font-size: 1rem;
+                color: #666;
+
+                .rating {
+                    display: flex;
+                    align-items: center;
+                    gap: 5px;
+                }
+            }
+
+            .book-author {
+                font-size: 1rem;
+                color: #333;
+            }
+
+            .book-version {
+                margin-bottom: 10px;
+
+                .ant-radio-group {
+                    margin-left: 10px;
+                }
+            }
+
+            .book-price-wrapper {
+                background-color: #ffe9e9;
+                padding: 10px 20px;
+                border-radius: 8px;
+                display: inline-block;
+
+                .price {
+                    font-size: 2rem;
+                    color: #e53935;
+                    font-weight: bold;
+                }
+            }
+
+            .book-detail-quantity {
+                display: flex;
+                align-items: center;
+                gap: 15px;
+
+                span {
+                    font-size: 1rem;
+                    font-weight: bold;
+                    color: #333;
+                }
+
+                .input-number {
+                    width: 60px;
+                    padding: 5px;
+                    font-size: 1rem;
+                    border: 1px solid #ccc;
+                    border-radius: 5px;
+                    text-align: center;
+                }
+
+                .icon {
+                    font-size: 1.5rem;
+                    color: #333;
+                    cursor: pointer;
+                }
+
+                .available {
+                    font-size: 1rem;
+                    color: #555;
+                }
+            }
+
+            .book-detail-actions {
+                display: flex;
+                gap: 20px;
+
+                .ant-btn-primary {
+                    background-color: #ff8c00;
+                    border: 1px solid #ff8c00;
+                    color: #fff;
+                    padding: 20px;
+                    font-size: 1rem;
+                    border-radius: 5px;
+                    display: flex;
+                    align-items: center;
+                    gap: 10px;
+
+                    &:hover {
+                        background-color: #ff5722;
+                    }
+
+                    &.buy-now {
+                        background-color: #ff5722;
+                        border: none;
+
+                        &:disabled {
+                            background-color: #ddd;
+                            cursor: not-allowed;
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
