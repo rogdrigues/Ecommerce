@@ -6,6 +6,7 @@ interface CartContextProps {
     addToCart: (book: any, quantity: number) => void;
     removeFromCart: (_id: string) => void;
     clearCart: () => void;
+    updateQuantity: (_id: string, quantity: number) => void;
 }
 
 const CartContext = createContext<CartContextProps | undefined>(undefined);
@@ -20,6 +21,20 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     const syncWithLocalStorage = (updatedCart: ICart[]) => {
         localStorage.setItem("cart", JSON.stringify(updatedCart));
     };
+
+    const updateQuantity = (_id: string, quantity: number) => {
+        setCart((prevCart) => {
+            const updatedCart = prevCart.map((item) => {
+                if (item._id === _id) {
+                    return { ...item, quantity };
+                }
+                return item;
+            });
+
+            syncWithLocalStorage(updatedCart);
+            return updatedCart;
+        });
+    }
 
     const addToCart = (book: any, quantity: number) => {
         try {
@@ -104,7 +119,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     };
 
     return (
-        <CartContext.Provider value={{ cart, addToCart, removeFromCart, clearCart }}>
+        <CartContext.Provider value={{ cart, addToCart, removeFromCart, clearCart, updateQuantity }}>
             {children}
         </CartContext.Provider>
     );
