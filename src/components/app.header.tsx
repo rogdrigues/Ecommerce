@@ -1,206 +1,245 @@
-import React, { useState } from 'react';
-import { Avatar, Typography, Tabs, Space, Modal, Button, message } from 'antd';
-import { UserOutlined, LockOutlined, SafetyOutlined, EditOutlined, CheckOutlined, CloseOutlined } from '@ant-design/icons';
+import { useNavigate } from 'react-router';
+import { Link } from 'react-router-dom';
+import { FaReact } from 'react-icons/fa';
+import { FiShoppingCart, FiSun, FiBell, FiMoon } from 'react-icons/fi';
+import { VscSearchFuzzy } from 'react-icons/vsc';
+import { MdTranslate } from 'react-icons/md';
+import { Badge, Popover, Dropdown, Space, Avatar, Typography, Button, Empty, List } from 'antd';
+
 import { useAppContext } from '@/context/app.context';
-import { updateUserInfoAPI } from '@/services';
+import { useNotification } from '@/context/notification.context';
+import { logoutAPI } from '@/services';
 
-interface IProps {
-    openProfile: boolean;
-    setOpenProfile: (open: boolean) => void;
-}
+import 'styles/app.header.scss';
+import { useCart } from '@/context/cart.context';
+import { useState } from 'react';
+import UserProfile from '@/pages/admin/user/_components/user.profile';
 
-const UserProfile: React.FC<IProps> = ({ openProfile, setOpenProfile }) => {
-    const { user, setUser } = useAppContext();
+const AppHeader = () => {
+    const { isAuthenticated, user, setUser, setIsAuthenticated } = useAppContext();
+    const [openProfile, setOpenProfile] = useState(false);
+    const navigate = useNavigate();
+    const notification = useNotification();
+    const { cart, removeFromCart } = useCart();
 
-    const [isEditing, setIsEditing] = useState<string | null>(null);
-    const [tempValue, setTempValue] = useState<string>("");
-
-    const handleUpdate = async (key: string, value: string) => {
+    const handleLogout = async () => {
         try {
-            if (!user) {
-                message.error('User not found. Please try again.');
-                return;
-            }
-            const payload = {
-                _id: user.id,
-                fullName: key === 'fullName' ? value : user.fullName,
-                phone: key === 'phone' ? value : user.phone,
-                avatar: key === 'avatar' ? value : user.avatar,
-            };
-            const updatedUser = await updateUserInfoAPI(payload);
+            const res = await logoutAPI();
+            if (res && res.data) {
+                setUser(null);
+                setIsAuthenticated(false);
+                localStorage.removeItem('access_token');
 
-            if (!updatedUser) {
-                message.error('Failed to update profile. Please try again.');
-                return;
+                notification.success({
+                    message: 'Đăng xuất thành công',
+                    description: 'Chúc bạn một ngày tốt lành',
+                });
+                navigate('/');
             }
-            setIsEditing(null);
-            setTempValue("");
-            message.success('Profile updated successfully!');
-        } catch (error) {
-            message.error('Failed to update profile. Please try again.');
+        } catch (err) {
+            console.error(err);
         }
     };
 
-    const BasicInfo = () => (
-        <>
-            <Typography.Title level={4}>Basic Information</Typography.Title>
-            <Typography.Text type="secondary" style={{ display: 'block', marginTop: '8px' }}>
-                Other users of your services may be able to see some of your information.
-            </Typography.Text>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '20px', position: 'relative' }}>
-                <div style={{ flex: 1, marginRight: '16px' }}>
-                    <Typography.Text strong>Profile Picture</Typography.Text>
-                    <Typography.Text type="secondary" style={{ display: 'block', marginTop: '4px' }}>
-                        Your profile picture helps create a personal touch for your account.
-                    </Typography.Text>
-                </div>
-                <div style={{ position: 'relative', width: 'fit-content' }}>
-                    <Avatar size={100} src={user.avatar} icon={!user.avatar && <UserOutlined />} />
-                    <Button
-                        type="default"
-                        shape="circle"
-                        icon={<EditOutlined style={{ color: '#000' }} />}
-                        style={{
-                            position: 'absolute',
-                            bottom: '10px',
-                            right: '0px',
-                            transform: 'translate(0, 0)',
-                            backgroundColor: '#fff',
-                            border: '1px solid #d9d9d9',
-                        }}
-                        onMouseEnter={(e) => {
-                            e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.8)';
-                        }}
-                        onMouseLeave={(e) => {
-                            e.currentTarget.style.backgroundColor = '#fff';
-                        }}
-                    />
-                </div>
-            </div>
-            <div style={{ marginTop: 20 }}>
-                {Object.entries(user).map(([key, value], index) => (
-                    key !== "avatar" && (
-                        <div
-                            key={key}
-                            style={{
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'space-between',
-                                marginBottom: '16px',
-                                borderBottom: '1px solid #d9d9d9',
-                                paddingBottom: '8px',
-                                borderTop: index === 1 ? '1px solid #d9d9d9' : 'none',
-                                paddingTop: index === 1 ? '8px' : '0',
-                            }}
-                        >
-                            <div>
-                                <Typography.Text>{key.charAt(0).toUpperCase() + key.slice(1)}</Typography.Text>
-                                {isEditing === key ? (
-                                    <input
-                                        style={{
-                                            border: 'none',
-                                            borderBottom: '1px solid #d9d9d9',
-                                            outline: 'none',
-                                            fontSize: '14px',
-                                            width: '100%',
-                                            marginTop: '4px',
-                                        }}
-                                        defaultValue={tempValue || value}
-                                        onChange={(e) => setTempValue(e.target.value)}
-                                    />
-                                ) : (
-                                    <Typography.Text style={{ display: 'block', marginTop: '4px' }}>
-                                        {value}
-                                    </Typography.Text>
-                                )}
-                            </div>
-                            <div style={{ display: 'flex', gap: '8px' }}>
-                                {isEditing === key ? (
-                                    <>
-                                        <Button
-                                            type="text"
-                                            icon={<CheckOutlined style={{ color: '#000' }} />}
-                                            onClick={() => handleUpdate(key, tempValue || value)}
-                                        />
-                                        <Button
-                                            type="text"
-                                            icon={<CloseOutlined style={{ color: '#000' }} />}
-                                            onClick={() => {
-                                                setIsEditing(null);
-                                                setTempValue("");
-                                            }}
-                                        />
-                                    </>
-                                ) : (
+    const sharedPopoverContent = (title: string) => (
+        <div className="pop-cart-content">
+            <Empty description={`Không có ${title}`} />
+        </div>
+    );
+
+    const handleRemoveFromCart = (id: string) => {
+        removeFromCart(id);
+    };
+
+    const cartPopoverContent = (
+        <div style={{ width: "300px" }}>
+            {cart.length > 0 ? (
+                <>
+                    <List
+                        dataSource={cart}
+                        renderItem={(item) => (
+                            <List.Item
+                                actions={[
                                     <Button
-                                        type="text"
-                                        icon={<EditOutlined style={{ color: '#000' }} />}
-                                        onClick={() => {
-                                            setIsEditing(key);
-                                            setTempValue(value);
-                                        }}
-                                    />
-                                )}
-                            </div>
-                        </div>
-                    )
-                ))}
-            </div>
-        </>
+                                        danger
+                                        size="small"
+                                        onClick={() => handleRemoveFromCart(item._id)}
+                                    >
+                                        Xóa
+                                    </Button>,
+                                ]}
+                            >
+                                <List.Item.Meta
+                                    avatar={
+                                        <Avatar
+                                            src={`${import.meta.env.VITE_BACKEND_URL}/images/book/${item.book.thumbnail}`}
+                                            alt={item.book.mainText}
+                                        />
+                                    }
+                                    title={
+                                        <Typography.Text
+                                            ellipsis={{
+                                                tooltip: item.book.mainText,
+                                            }}
+                                            style={{ maxWidth: "180px" }}
+                                        >
+                                            {item.book.mainText}
+                                        </Typography.Text>
+                                    }
+                                    description={
+                                        <div>
+                                            <Typography.Text strong style={{ display: "block", marginBottom: "5px" }}>
+                                                Giá:{" "}
+                                                {new Intl.NumberFormat("vi-VN", {
+                                                    style: "currency",
+                                                    currency: "VND",
+                                                }).format(item.book.price * item.quantity)}
+                                            </Typography.Text>
+                                            <Typography.Text>
+                                                Số lượng: {item.quantity}
+                                            </Typography.Text>
+                                        </div>
+                                    }
+                                />
+                            </List.Item>
+                        )}
+                    />
+                    <Button
+                        type="primary"
+                        block
+                        style={{ marginTop: "10px" }}
+                        onClick={() => navigate('/order')}
+                    >
+                        Xem giỏ hàng
+                    </Button>
+                </>
+            ) : (
+                <Typography.Text>Không có sản phẩm nào trong giỏ hàng.</Typography.Text>
+            )}
+        </div>
     );
 
-    const PrivacySettings = () => (
-        <Typography.Text>Privacy settings will go here.</Typography.Text>
+
+    const darkModePopoverContent = (
+        <div style={{ display: 'flex', justifyContent: 'space-between', gap: '10px' }}>
+            <Button style={{ flex: 1, background: '#f0f0f0', color: '#000' }}>
+                <Space>
+                    <FiSun style={{ color: '#ffa500' }} /> Sáng
+                </Space>
+            </Button>
+            <Button style={{ flex: 1, background: '#333', color: '#fff' }}>
+                <Space>
+                    <FiMoon style={{ color: '#808080' }} /> Tối
+                </Space>
+            </Button>
+        </div>
     );
 
-    const SecuritySettings = () => (
-        <Typography.Text>Security settings will go here.</Typography.Text>
+    const languagePopoverContent = (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+            <Button style={{ display: 'flex', justifyContent: 'space-between', background: '#f0f0f0', color: '#000' }}>
+                <span>Tiếng Việt</span>
+                <MdTranslate style={{ color: '#00aaff' }} />
+            </Button>
+            <Button style={{ display: 'flex', justifyContent: 'space-between', background: '#f0f0f0', color: '#000' }}>
+                <span>日本語</span>
+                <MdTranslate style={{ color: '#ff4500' }} />
+            </Button>
+            <Button style={{ display: 'flex', justifyContent: 'space-between', background: '#f0f0f0', color: '#000' }}>
+                <span>English</span>
+                <MdTranslate style={{ color: '#32cd32' }} />
+            </Button>
+        </div>
     );
+
+    const dropdownItems = [
+        ...(user?.role === 'ADMIN'
+            ? [{ label: <Link to="/admin">Trang quản trị</Link>, key: 'admin' }]
+            : []),
+        { label: <span onClick={() => { setOpenProfile(true) }}>Quản lý tài khoản</span>, key: 'account' },
+        { label: <Link to="/order_view">Lịch sử mua hàng</Link>, key: 'history' },
+        { label: <span onClick={handleLogout}>Đăng xuất</span>, key: 'logout' },
+    ];
 
     return (
-        <Modal
-            title="User Profile"
-            visible={openProfile}
-            onCancel={() => setOpenProfile(false)}
-            footer={null}
-            width={1400}
-        >
-            <Tabs
-                tabPosition="left"
-                style={{ height: '100%' }}
-                items={[{
-                    key: 'basicInfo',
-                    label: (
-                        <span style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                            <UserOutlined />
-                            My Account
+        <div className="header-container">
+            <header className="page-header">
+                <div className="header-section header-left" style={{ gap: '30px' }}>
+                    <FaReact className="logo-icon" />
+                    <span className="logo" onClick={() => navigate('/')}>PJNS</span>
+                    <Link to="#" aria-disabled="true" style={{ color: '#fff', textDecoration: 'none' }}>Home</Link>
+                    <Link to="/book" style={{ color: '#fff', textDecoration: 'none' }}>Book</Link>
+                    <Link to="/order" style={{ color: '#fff', textDecoration: 'none' }}>Order</Link>
+                </div>
+
+                <div className="header-section header-center" style={{ margin: '0 40px' }}>
+                    <div className="search-container">
+                        <input
+                            className="input-search"
+                            type="text"
+                            placeholder="Tìm sản phẩm, thương hiệu, và tên shop"
+                        />
+                        <VscSearchFuzzy className="icon-search-inside" />
+                    </div>
+                </div>
+
+                <div className="header-section header-right" style={{ gap: '25px', paddingRight: '40px' }}>
+                    <Popover
+                        content={languagePopoverContent}
+                        title="Chuyển đổi ngôn ngữ"
+                        placement="bottomRight"
+                        arrow
+                    >
+                        <MdTranslate className="header-icon" style={{ fontSize: '1.5em', color: '#fff', cursor: 'pointer' }} />
+                    </Popover>
+                    <Popover
+                        content={darkModePopoverContent}
+                        title="Chế độ sáng tối"
+                        placement="bottomRight"
+                        arrow
+                    >
+                        <FiSun className="header-icon" style={{ fontSize: '1.5em', color: '#fff', cursor: 'pointer' }} />
+                    </Popover>
+                    <Popover
+                        content={sharedPopoverContent("thông báo")}
+                        title="Thông báo"
+                        placement="bottomRight"
+                        arrow
+                    >
+                        <Badge count={3} size="small">
+                            <FiBell className="header-icon" style={{ fontSize: '1.5em', color: '#61dafb', cursor: 'pointer' }} />
+                        </Badge>
+                    </Popover>
+                    <Popover
+                        className="popover-carts"
+                        placement="bottomRight"
+                        title="Giỏ hàng"
+                        content={cartPopoverContent}
+                        arrow
+                    >
+                        <Badge count={cart.length} size="small" showZero>
+                            <FiShoppingCart className="icon-cart" style={{ fontSize: '1.5em', color: '#fff', cursor: 'pointer' }} />
+                        </Badge>
+                    </Popover>
+                    {isAuthenticated ? (
+                        <Dropdown menu={{ items: dropdownItems }} trigger={['click']}>
+                            <Space style={{ cursor: "pointer" }}>
+                                <Avatar
+                                    style={{ cursor: 'pointer', color: '#f56a00', backgroundColor: '#fde3cf' }}
+                                    src={`${import.meta.env.VITE_BACKEND_URL}/images/avatar/${user?.avatar}`} />
+                                <Typography.Text className="user-name" style={{ color: '#fff' }}>{user?.fullName}</Typography.Text>
+                            </Space>
+                        </Dropdown>
+                    ) : (
+                        <span className="login-link" onClick={() => navigate('/login')} style={{ color: '#fff' }}>
+                            Tài Khoản
                         </span>
-                    ),
-                    children: <BasicInfo />,
-                },
-                {
-                    key: 'privacy',
-                    label: (
-                        <span style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                            <LockOutlined />
-                            Privacy
-                        </span>
-                    ),
-                    children: <PrivacySettings />,
-                },
-                {
-                    key: 'security',
-                    label: (
-                        <span style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                            <SafetyOutlined />
-                            Security
-                        </span>
-                    ),
-                    children: <SecuritySettings />,
-                }]}
-            />
-        </Modal>
+                    )}
+                </div>
+            </header>
+            <UserProfile openProfile={openProfile} setOpenProfile={setOpenProfile} />
+        </div>
     );
 };
 
-export default UserProfile;
+export default AppHeader;

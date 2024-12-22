@@ -148,15 +148,6 @@ const OrderHistoryPage = () => {
                 return <Tag color={color}>{status}</Tag>
             }
         },
-        {
-            title: "Hành động",
-            key: "action",
-            render: (_: any, record: any) => (
-                <Space>
-                    <Button type="primary">Xem chi tiết</Button>
-                </Space>
-            ),
-        },
     ];
 
     return (
