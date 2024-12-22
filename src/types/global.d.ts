@@ -89,17 +89,36 @@ declare global {
     }
 
     interface IOrder {
-        "name": string;
-        "address": string;
-        "phone": string;
-        "totalPrice": number;
-        "type": string;
-        "detail": [
+        name: string;
+        address: string;
+        phone: string;
+        totalPrice: number;
+        type: string;
+        detail: [
             {
-                "bookName": string;
-                "quantity": number;
-                "_id": string;
+                _id: string;
+                bookName: string;
+                quantity: number;
             }
         ]
+    }
+
+    interface IOrderHistory {
+        _id: string;
+        name: string;
+        type: string;
+        email: string;
+        phone: string;
+        userId: string;
+        detail: [
+            {
+                bookName: string;
+                quantity: number;
+                _id: string;
+            }
+        ]
+        totalPrice: number;
+        createdAt: Date;
+        updatedAt: Date;
     }
 }

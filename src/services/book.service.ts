@@ -53,8 +53,12 @@ export const createOrderAPI = (orderData: IOrder) => {
     return axios.post<IBackendRes<IOrder>>(`${baseURL}/order`, orderData,
         {
             headers: {
-                delay: '5000'
+                delay: '3000'
             }
         }
     );
+}
+
+export const getOrderHistoryAPI = () => {
+    return axios.get<IBackendRes<IOrderHistory>>(`${baseURL}/history`);
 }

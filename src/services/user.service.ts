@@ -59,3 +59,12 @@ export const bulkImportExcelUserAPI = (data: {
 }[]) => {
     return axios.post<IBackendRes<IResponseImport[]>>(`${baseURL}/user/bulk-create`, data);
 }
+
+export const updateUserInfoAPI = (data: { _id: string, fullName: string, phone: string, avatar: string }) => {
+    return axios.put<IBackendRes<IUser>>(`${baseURL}/user`, data);
+}
+
+export const updateUserPasswordAPI = (data: { email: string, oldpass: string, newpass: string }) => {
+    return axios.put<IBackendRes<IUser>>(`${baseURL}/user/change-password`, data);
+}
+

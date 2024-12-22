@@ -10,8 +10,9 @@ import ManageBookPage from "@/pages/admin/book";
 import ManageUserPage from "@/pages/admin/user";
 import Dashboard from "@/pages/admin/dashboard";
 import BookUserPage from "@/pages/user/book";
-import BookDetail from "@/pages/user/book/book.detail";
+import BookDetail from "@/pages/user/book/_components/book.detail";
 import OrderUserPage from "@/pages/user/order";
+import OrderHistoryPage from "@/pages/user/order/_components/order.history.view";
 
 const routes = [
     {
@@ -38,6 +39,10 @@ const routes = [
             {
                 path: "order",
                 element: <OrderUserPage />
+            },
+            {
+                path: "order_view",
+                element: <OrderHistoryPage />
             },
             {
                 path: "about",

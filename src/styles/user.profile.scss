@@ -1,0 +1,161 @@
+// Global styles (sử dụng lại cho tất cả các component)
+
+.flex-space-between {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.flex-gap {
+    display: flex;
+    gap: 8px;
+}
+
+.scroll-bar {
+    height: 100%;
+    overflow-y: auto;
+}
+
+.absolute-white-background {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    background-color: #fff;
+}
+
+.box-splitter {
+    padding: 12px;
+    margin-top: 16px;
+    margin-right: 16px;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+}
+
+.changed-button {
+    background-color: #a5d6a7;
+    color: #2e7d32;
+    font-weight: bold;
+    transition: all 0.3s ease;
+    width: 100%;
+    border-radius: 8px;
+
+    &:hover {
+        background-color: #81c784;
+    }
+}
+
+.deleted-button {
+    color: #ef9a9a;
+    border-color: #e57373;
+    font-weight: bold;
+    transition: all 0.3s ease;
+    width: 100%;
+    border-radius: 8px;
+
+    &:hover {
+        background-color: #ffebee;
+        border-color: #ef5350;
+        color: #d32f2f;
+    }
+}
+
+.image-small-size {
+    width: 240px;
+    height: 240px;
+    border: 2px solid #e0e0e0;
+}
+
+// Styles for UserProfileModal
+
+.user-profile-modal {
+    position: relative;
+
+    .profile-dialogue {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 90%;
+        height: 80%;
+        background-color: var(--background-paper);
+        border: 1px solid #000;
+        box-shadow: 24px;
+        display: flex;
+        border-radius: 8px;
+    }
+
+    .profile-sidebar {
+        width: 20%;
+        border-right: 1px solid #ddd;
+        padding: 16px;
+        overflow-y: auto;
+
+        .profile-title {
+            margin-bottom: 16px;
+        }
+
+        .profile-list-item {
+            cursor: pointer;
+            transition: background-color 0.3s;
+
+            &.active {
+                background-color: #f0f0f0;
+            }
+
+            &:hover {
+                background-color: #e6f7ff;
+            }
+        }
+    }
+
+    .profile-content {
+        width: 80%;
+        padding: 16px;
+        overflow-y: auto;
+    }
+}
+
+// Styles for AccountProfileInfo
+
+.account-profile-info {
+    height: 100%;
+    overflow-y: auto;
+
+    .basic-info-container {
+        padding: 12px;
+        margin-top: 16px;
+        margin-right: 16px;
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+
+        .basic-info-header {
+            margin-bottom: 16px;
+        }
+
+        .profile-picture-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+
+            .avatar-container {
+                position: relative;
+
+                .avatar-border {
+                    border: 2px solid #e0e0e0;
+                }
+
+                .edit-avatar-button {
+                    position: absolute;
+                    bottom: 0;
+                    right: 0;
+                    background-color: #fff;
+                }
+            }
+        }
+
+        .editable-field-divider {
+            margin: 16px 0;
+        }
+    }
+}
