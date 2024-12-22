@@ -48,3 +48,13 @@ export const fileUploadAPI = (file: any, folder: string) => {
         },
     });
 }
+
+export const createOrderAPI = (orderData: IOrder) => {
+    return axios.post<IBackendRes<IOrder>>(`${baseURL}/order`, orderData,
+        {
+            headers: {
+                delay: '5000'
+            }
+        }
+    );
+}
