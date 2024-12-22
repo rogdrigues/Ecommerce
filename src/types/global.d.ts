@@ -87,4 +87,19 @@ declare global {
         book: IBookTable;
         quantity: number;
     }
+
+    interface IOrder {
+        "name": string;
+        "address": string;
+        "phone": string;
+        "totalPrice": number;
+        "type": string;
+        "detail": [
+            {
+                "bookName": string;
+                "quantity": number;
+                "_id": string;
+            }
+        ]
+    }
 }

@@ -2,13 +2,19 @@ import React, { useState } from "react";
 import { useCart } from "@/context/cart.context";
 import { Typography, Table, Button, InputNumber, Checkbox, Steps, Radio, Input, Space, Card, Form, Row, Col } from "antd";
 import { DeleteOutlined, ShoppingCartOutlined, CreditCardOutlined, CheckCircleOutlined, ArrowLeftOutlined } from "@ant-design/icons";
+import { createOrderAPI } from "@/services";
+import { useNotification } from "@/context/notification.context";
+import { useNavigate } from "react-router-dom";
 
 const OrderPage = () => {
-    const { cart, removeFromCart, updateQuantity } = useCart();
+    const { cart, removeFromCart, updateQuantity, clearCart } = useCart();
 
     const [currentStep, setCurrentStep] = useState<number>(0);
     const [selectedItems, setSelectedItems] = useState<string[]>([]);
     const [paymentMethod, setPaymentMethod] = useState<string>("COD");
+    const notification = useNotification();
+    const navigate = useNavigate();
+    const [form] = Form.useForm();
 
     const handleSelectAll = (checked: boolean) => {
         if (checked) {
@@ -31,6 +37,46 @@ const OrderPage = () => {
         setSelectedItems((prev) =>
             checked ? [...prev, _id] : prev.filter((id) => id !== _id)
         );
+    };
+
+    const handlePlaceOrder = async () => {
+        try {
+            // Validate form before proceeding
+            await form.validateFields();
+
+            const orderData: IOrder = {
+                name: form.getFieldValue("fullname"),
+                address: form.getFieldValue("address"),
+                phone: form.getFieldValue("phone"),
+                totalPrice: totalAmount,
+                type: paymentMethod,
+                detail: selectedProducts.map((product) => ({
+                    bookName: product.book.mainText,
+                    quantity: product.quantity,
+                    _id: product.book._id,
+                })) as [{ bookName: string; quantity: number; _id: string }],
+            };
+
+            const response = await createOrderAPI(orderData);
+
+            if (response?.statusCode === 201) {
+                notification.success({
+                    message: "Đặt hàng thành công",
+                    description: "Đơn hàng của bạn đã được xử lý.",
+                });
+                setCurrentStep(2);
+                //remove selected items from cart
+                selectedItems.forEach((id) => removeFromCart(id));
+            } else {
+                throw new Error(response?.message || "Đặt hàng thất bại");
+            }
+        } catch (error: any) {
+            console.error("Error placing order:", error);
+            notification.error({
+                message: "Lỗi",
+                description: error.message || "Đã có lỗi xảy ra khi đặt hàng.",
+            });
+        }
     };
 
     const columns = [
@@ -251,7 +297,7 @@ const OrderPage = () => {
                                 rowKey="_id"
                                 style={{ marginBottom: "20px", width: "100%" }}
                             />
-                            <Form layout="vertical">
+                            <Form layout="vertical" form={form}>
                                 <Form.Item label="Họ và tên" name="fullname" required>
                                     <Input placeholder="Nhập họ và tên" style={{ marginBottom: "10px" }} />
                                 </Form.Item>
@@ -308,7 +354,10 @@ const OrderPage = () => {
                                             fontSize: "16px",
                                             fontWeight: "bold",
                                         }}
-                                        onClick={() => setCurrentStep(2)}
+                                        onClick={() => {
+                                            handlePlaceOrder();
+                                            setCurrentStep(2);
+                                        }}
                                     >
                                         Đặt Hàng ({selectedItems.length})
                                     </Button>
@@ -380,7 +429,7 @@ const OrderPage = () => {
                                 fontSize: "16px",
                                 fontWeight: "bold",
                             }}
-                            onClick={() => alert("Cảm ơn bạn đã sử dụng dịch vụ của chúng tôi!")}
+                            onClick={() => navigate("/")}
                         >
                             Quay Lại Trang Chủ
                         </Button>
@@ -412,6 +461,6 @@ const OrderPage = () => {
             </div>
         </div>
     );
-};
+}
 
 export default OrderPage;
