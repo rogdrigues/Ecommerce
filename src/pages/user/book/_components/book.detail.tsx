@@ -195,11 +195,8 @@ const BookDetail = () => {
                     </div>
 
                     <div className="book-detail-actions">
-                        <Button className="ant-btn-primary" onClick={handleAddToCart}>
+                        <Button className="ant-btn-primary" onClick={handleAddToCart} disabled={!selectedVersion}>
                             <ShoppingCartOutlined /> Thêm vào giỏ hàng
-                        </Button>
-                        <Button className="ant-btn-primary buy-now" disabled={!selectedVersion}>
-                            <DollarOutlined /> Mua ngay
                         </Button>
                     </div>
                 </div>

@@ -17,7 +17,7 @@ const DeleteBookModal = (props: IProps) => {
     const [loading, setLoading] = useState(false);
 
     const onConfirm = async () => {
-        setLoading(true); // Bắt đầu xử lý
+        setLoading(true);
         try {
             const res = await deleteBookAPI(record._id);
 

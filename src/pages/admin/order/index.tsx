@@ -1,8 +1,10 @@
+import TableOrder from "./_components/order-table";
+
 const ManageOrderPage = () => {
     return (
-        <div>
-            <h1>ManageOrderPage Page</h1>
-        </div>
+        <>
+            <TableOrder />
+        </>
     );
 }
 
