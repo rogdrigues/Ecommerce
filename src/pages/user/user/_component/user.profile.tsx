@@ -1,8 +1,6 @@
 import React, { useState } from 'react';
-import { Avatar, Typography, Tabs, Space, Modal, Button, message } from 'antd';
+import { Avatar, Typography, Tabs, Space, Modal, Button } from 'antd';
 import { UserOutlined, LockOutlined, SafetyOutlined, EditOutlined, CheckOutlined, CloseOutlined } from '@ant-design/icons';
-import { useAppContext } from '@/context/app.context';
-import { updateUserInfoAPI } from '@/services';
 
 interface IProps {
     openProfile: boolean;
@@ -10,36 +8,17 @@ interface IProps {
 }
 
 const UserProfile: React.FC<IProps> = ({ openProfile, setOpenProfile }) => {
-    const { user, setUser } = useAppContext();
+    const user = {
+        avatar: '', // Empty to demonstrate default icon
+        fullName: 'Admin User',
+        email: 'admin@gmail.com',
+        phone: '0123456789',
+        dateOfBirth: '1980-01-01',
+        gender: 'Male',
+    };
 
     const [isEditing, setIsEditing] = useState<string | null>(null);
     const [tempValue, setTempValue] = useState<string>("");
-
-    const handleUpdate = async (key: string, value: string) => {
-        try {
-            if (!user) {
-                message.error('User not found. Please try again.');
-                return;
-            }
-            const payload = {
-                _id: user.id,
-                fullName: key === 'fullName' ? value : user.fullName,
-                phone: key === 'phone' ? value : user.phone,
-                avatar: key === 'avatar' ? value : user.avatar,
-            };
-            const updatedUser = await updateUserInfoAPI(payload);
-
-            if (!updatedUser) {
-                message.error('Failed to update profile. Please try again.');
-                return;
-            }
-            setIsEditing(null);
-            setTempValue("");
-            message.success('Profile updated successfully!');
-        } catch (error) {
-            message.error('Failed to update profile. Please try again.');
-        }
-    };
 
     const BasicInfo = () => (
         <>
@@ -93,7 +72,7 @@ const UserProfile: React.FC<IProps> = ({ openProfile, setOpenProfile }) => {
                                 paddingTop: index === 1 ? '8px' : '0',
                             }}
                         >
-                            <div>
+                            <div style={{ flex: 1 }}>
                                 <Typography.Text>{key.charAt(0).toUpperCase() + key.slice(1)}</Typography.Text>
                                 {isEditing === key ? (
                                     <input
@@ -120,7 +99,11 @@ const UserProfile: React.FC<IProps> = ({ openProfile, setOpenProfile }) => {
                                         <Button
                                             type="text"
                                             icon={<CheckOutlined style={{ color: '#000' }} />}
-                                            onClick={() => handleUpdate(key, tempValue || value)}
+                                            onClick={() => {
+                                                user[key] = tempValue;
+                                                setIsEditing(null);
+                                                setTempValue("");
+                                            }}
                                         />
                                         <Button
                                             type="text"
