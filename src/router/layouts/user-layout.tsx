@@ -6,7 +6,7 @@ const UserLayout = () => {
     return (
         <>
             <AppHeader />
-            <div style={{ margin: '75px 0' }}>
+            <div style={{ margin: '90px 0' }}>
                 <Outlet />
             </div>
             <AppFooter />

@@ -18,7 +18,7 @@ const BookCard = ({ book }: IBookCardProps) => {
     const backendURL = import.meta.env.VITE_BACKEND_URL;
     const navigate = useNavigate();
     return (
-        <div className="book-card">
+        <div className="book-card" onClick={() => navigate(`/book/${book._id}`)}>
             <div className="book-image">
                 <Image
                     width={150}
@@ -40,17 +40,9 @@ const BookCard = ({ book }: IBookCardProps) => {
                     )}
                     {book.quantity !== undefined && (
                         <span className="book-quantity">
-                            Số lượng: {book.quantity}
+                            Đã bán {book.sold ?? 0}
                         </span>
                     )}
-                </div>
-                <div className="book-actions">
-                    <button className="add-to-cart-btn">
-                        <FaShoppingCart /> Thêm vào giỏ
-                    </button>
-                    <button className="view-details-btn" onClick={() => { navigate(`/book/${book._id}`) }}>
-                        <FaInfoCircle /> Xem chi tiết
-                    </button>
                 </div>
             </div>
         </div>

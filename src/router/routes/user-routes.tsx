@@ -11,6 +11,7 @@ import ManageUserPage from "@/pages/admin/user";
 import Dashboard from "@/pages/admin/dashboard";
 import BookUserPage from "@/pages/user/book";
 import BookDetail from "@/pages/user/book/book.detail";
+import OrderUserPage from "@/pages/user/order";
 
 const routes = [
     {
@@ -33,6 +34,10 @@ const routes = [
             {
                 path: "book/:id",
                 element: <BookDetail />
+            },
+            {
+                path: "order",
+                element: <OrderUserPage />
             },
             {
                 path: "about",

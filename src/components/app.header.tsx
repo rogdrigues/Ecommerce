@@ -51,59 +51,71 @@ const AppHeader = () => {
     const cartPopoverContent = (
         <div style={{ width: "300px" }}>
             {cart.length > 0 ? (
-                <List
-                    dataSource={cart}
-                    renderItem={(item) => (
-                        <List.Item
-                            actions={[
-                                <Button
-                                    danger
-                                    size="small"
-                                    onClick={() => handleRemoveFromCart(item._id)}
-                                >
-                                    Xóa
-                                </Button>,
-                            ]}
-                        >
-                            <List.Item.Meta
-                                avatar={
-                                    <Avatar
-                                        src={`${import.meta.env.VITE_BACKEND_URL}/images/book/${item.book.thumbnail}`}
-                                        alt={item.book.mainText}
-                                    />
-                                }
-                                title={
-                                    <Typography.Text
-                                        ellipsis={{
-                                            tooltip: item.book.mainText,
-                                        }}
-                                        style={{ maxWidth: "180px" }}
+                <>
+                    <List
+                        dataSource={cart}
+                        renderItem={(item) => (
+                            <List.Item
+                                actions={[
+                                    <Button
+                                        danger
+                                        size="small"
+                                        onClick={() => handleRemoveFromCart(item._id)}
                                     >
-                                        {item.book.mainText}
-                                    </Typography.Text>
-                                }
-                                description={
-                                    <div>
-                                        <Typography.Text strong style={{ display: "block", marginBottom: "5px" }}>
-                                            Giá:{" "}
-                                            {new Intl.NumberFormat("vi-VN", {
-                                                style: "currency",
-                                                currency: "VND",
-                                            }).format(item.book.price * item.quantity)}
+                                        Xóa
+                                    </Button>,
+                                ]}
+                            >
+                                <List.Item.Meta
+                                    avatar={
+                                        <Avatar
+                                            src={`${import.meta.env.VITE_BACKEND_URL}/images/book/${item.book.thumbnail}`}
+                                            alt={item.book.mainText}
+                                        />
+                                    }
+                                    title={
+                                        <Typography.Text
+                                            ellipsis={{
+                                                tooltip: item.book.mainText,
+                                            }}
+                                            style={{ maxWidth: "180px" }}
+                                        >
+                                            {item.book.mainText}
                                         </Typography.Text>
-                                        <Typography.Text>
-                                            Số lượng: {item.quantity}
-                                        </Typography.Text>
-                                    </div>
-                                } />
-                        </List.Item>
-                    )}
-                />
+                                    }
+                                    description={
+                                        <div>
+                                            <Typography.Text strong style={{ display: "block", marginBottom: "5px" }}>
+                                                Giá:{" "}
+                                                {new Intl.NumberFormat("vi-VN", {
+                                                    style: "currency",
+                                                    currency: "VND",
+                                                }).format(item.book.price * item.quantity)}
+                                            </Typography.Text>
+                                            <Typography.Text>
+                                                Số lượng: {item.quantity}
+                                            </Typography.Text>
+                                        </div>
+                                    }
+                                />
+                            </List.Item>
+                        )}
+                    />
+                    <Button
+                        type="primary"
+                        block
+                        style={{ marginTop: "10px" }}
+                        onClick={() => navigate('/order')}
+                    >
+                        Xem giỏ hàng
+                    </Button>
+                </>
             ) : (
                 <Typography.Text>Không có sản phẩm nào trong giỏ hàng.</Typography.Text>
             )}
         </div>
     );
+
 
     const darkModePopoverContent = (
         <div style={{ display: 'flex', justifyContent: 'space-between', gap: '10px' }}>
