@@ -49,16 +49,6 @@ export const fileUploadAPI = (file: any, folder: string) => {
     });
 }
 
-export const createOrderAPI = (orderData: IOrder) => {
-    return axios.post<IBackendRes<IOrder>>(`${baseURL}/order`, orderData,
-        {
-            headers: {
-                delay: '3000'
-            }
-        }
-    );
-}
-
 export const getOrderHistoryAPI = () => {
     return axios.get<IBackendRes<IOrderHistory>>(`${baseURL}/history`);
 }

@@ -146,7 +146,7 @@ const UserProfile: React.FC<IProps> = ({ openProfile, setOpenProfile }) => {
     return (
         <Modal
             title="User Profile"
-            visible={openProfile}
+            open={openProfile}
             onCancel={() => setOpenProfile(false)}
             footer={null}
             width={1400}

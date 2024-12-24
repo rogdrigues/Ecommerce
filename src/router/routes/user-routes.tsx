@@ -11,8 +11,9 @@ import ManageUserPage from "@/pages/admin/user";
 import Dashboard from "@/pages/admin/dashboard";
 import BookUserPage from "@/pages/user/book";
 import BookDetail from "@/pages/user/book/_components/book.detail";
-import OrderUserPage from "@/pages/user/order";
-import OrderHistoryPage from "@/pages/user/order/_components/order.history.view";
+import OrderHistoryPage from "@/pages/user/order/order.history.view";
+import OrderPage from "@/pages/user/order/order.page";
+import PaymentPage from "@/pages/user/order/order.payment.view";
 
 const routes = [
     {
@@ -38,11 +39,15 @@ const routes = [
             },
             {
                 path: "order",
-                element: <OrderUserPage />
+                element: <OrderPage />
             },
             {
                 path: "order_view",
                 element: <OrderHistoryPage />
+            },
+            {
+                path: "vnpay/return-url",
+                element: <PaymentPage />
             },
             {
                 path: "about",

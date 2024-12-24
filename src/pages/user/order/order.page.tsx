@@ -1,13 +1,14 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { useCart } from "@/context/cart.context";
 import { Typography, Table, Button, InputNumber, Checkbox, Steps, Radio, Input, Space, Card, Form, Row, Col } from "antd";
 import { DeleteOutlined, ShoppingCartOutlined, CreditCardOutlined, CheckCircleOutlined, ArrowLeftOutlined } from "@ant-design/icons";
-import { createOrderAPI } from "@/services";
 import { useNotification } from "@/context/notification.context";
 import { useNavigate } from "react-router-dom";
+import { createOrderAPI, getVNPayUrlAPI } from "@/services/order.service";
+import { v4 as uuidv4 } from "uuid";
 
 const OrderPage = () => {
-    const { cart, removeFromCart, updateQuantity, clearCart } = useCart();
+    const { cart, removeFromCart, updateQuantity } = useCart();
 
     const [currentStep, setCurrentStep] = useState<number>(0);
     const [selectedItems, setSelectedItems] = useState<string[]>([]);
@@ -41,8 +42,8 @@ const OrderPage = () => {
 
     const handlePlaceOrder = async () => {
         try {
-            // Validate form before proceeding
             await form.validateFields();
+            const paymentRef = uuidv4();
 
             const orderData: IOrder = {
                 name: form.getFieldValue("fullname"),
@@ -57,16 +58,31 @@ const OrderPage = () => {
                 })) as [{ bookName: string; quantity: number; _id: string }],
             };
 
+            if (paymentMethod !== "COD") {
+                orderData.paymentRef = form.getFieldValue("paymentRef");
+            }
+
             const response = await createOrderAPI(orderData);
 
             if (response?.statusCode === 201) {
-                notification.success({
-                    message: "Đặt hàng thành công",
-                    description: "Đơn hàng của bạn đã được xử lý.",
-                });
-                setCurrentStep(2);
-                //remove selected items from cart
-                selectedItems.forEach((id) => removeFromCart(id));
+                if (paymentMethod === "COD") {
+                    setCurrentStep(2);
+                    selectedItems.forEach((id) => removeFromCart(id));
+                    notification.success({
+                        message: "Đặt hàng thành công",
+                        description: "Đơn hàng của bạn đã được xử lý.",
+                    });
+                } else {
+                    const vnPayRes = await getVNPayUrlAPI(totalAmount, "vn", paymentRef);
+                    if (vnPayRes.data) {
+                        window.location.href = vnPayRes.data.url;
+                    } else {
+                        notification.error({
+                            message: "Lỗi",
+                            description: "Đã có lỗi xảy ra khi thanh toán.",
+                        });
+                    }
+                }
             } else {
                 throw new Error(response?.message || "Đặt hàng thất bại");
             }
@@ -288,83 +304,80 @@ const OrderPage = () => {
                         </Space>
                     </Radio.Group>
 
-                    {paymentMethod === "COD" && (
-                        <>
-                            <Table
-                                dataSource={selectedProducts}
-                                columns={columns.filter(col => col.key !== 'checkbox' && col.key !== 'action' && col.key !== 'quantity')}
-                                pagination={false}
-                                rowKey="_id"
-                                style={{ marginBottom: "20px", width: "100%" }}
-                            />
-                            <Form layout="vertical" form={form}>
-                                <Form.Item label="Họ và tên" name="fullname" required>
-                                    <Input placeholder="Nhập họ và tên" style={{ marginBottom: "10px" }} />
-                                </Form.Item>
-                                <Form.Item label="Số điện thoại" name="phone" required>
-                                    <Input placeholder="Nhập số điện thoại" style={{ marginBottom: "10px" }} />
-                                </Form.Item>
-                                <Form.Item label="Địa chỉ nhận hàng" name="address" required>
-                                    <Input.TextArea placeholder="Nhập địa chỉ nhận hàng" rows={3} style={{ marginBottom: "10px" }} />
-                                </Form.Item>
-                                <Row gutter={16} style={{ marginTop: "20px" }}>
-                                    <Col span={12}>
-                                        <Typography.Text>Tạm tính:</Typography.Text>
-                                    </Col>
-                                    <Col span={12} style={{ textAlign: "right" }}>
-                                        <Typography.Text style={{ fontSize: "16px" }}>
-                                            {new Intl.NumberFormat("vi-VN", {
-                                                style: "currency",
-                                                currency: "VND",
-                                            }).format(totalAmount)}
-                                        </Typography.Text>
-                                    </Col>
-                                    <Col span={12}>
-                                        <Typography.Text>Tổng cộng:</Typography.Text>
-                                    </Col>
-                                    <Col span={12} style={{ textAlign: "right" }}>
-                                        <Typography.Text style={{ fontSize: "20px", color: "#ff7a45" }}>
-                                            {new Intl.NumberFormat("vi-VN", {
-                                                style: "currency",
-                                                currency: "VND",
-                                            }).format(totalAmount)}
-                                        </Typography.Text>
-                                    </Col>
-                                </Row>
-                                <div style={{ display: "flex", justifyContent: "space-between", marginTop: "20px" }}>
-                                    <Button
-                                        type="default"
-                                        style={{
-                                            fontSize: "16px",
-                                            fontWeight: "bold",
-                                            display: "flex",
-                                            alignItems: "center",
-                                        }}
-                                        icon={<ArrowLeftOutlined />}
-                                        onClick={() => setCurrentStep(0)}
-                                    >
-                                        Quay Lại
-                                    </Button>
-                                    <Button
-                                        type="primary"
-                                        disabled={selectedItems.length === 0}
-                                        style={{
-                                            backgroundColor: "#ff7a45",
-                                            borderColor: "#ff7a45",
-                                            fontSize: "16px",
-                                            fontWeight: "bold",
-                                        }}
-                                        onClick={() => {
-                                            handlePlaceOrder();
-                                            setCurrentStep(2);
-                                        }}
-                                    >
-                                        Đặt Hàng ({selectedItems.length})
-                                    </Button>
-                                </div>
-                            </Form>
-                        </>
-                    )}
+                    <>
+                        <Table
+                            dataSource={selectedProducts}
+                            columns={columns.filter(col => col.key !== 'checkbox' && col.key !== 'action' && col.key !== 'quantity')}
+                            pagination={false}
+                            rowKey="_id"
+                            style={{ marginBottom: "20px", width: "100%" }}
+                        />
+                        <Form layout="vertical" form={form}>
+                            <Form.Item label="Họ và tên" name="fullname" required>
+                                <Input placeholder="Nhập họ và tên" style={{ marginBottom: "10px" }} />
+                            </Form.Item>
+                            <Form.Item label="Số điện thoại" name="phone" required>
+                                <Input placeholder="Nhập số điện thoại" style={{ marginBottom: "10px" }} />
+                            </Form.Item>
+                            <Form.Item label="Địa chỉ nhận hàng" name="address" required>
+                                <Input.TextArea placeholder="Nhập địa chỉ nhận hàng" rows={3} style={{ marginBottom: "10px" }} />
+                            </Form.Item>
+                            <Row gutter={16} style={{ marginTop: "20px" }}>
+                                <Col span={12}>
+                                    <Typography.Text>Tạm tính:</Typography.Text>
+                                </Col>
+                                <Col span={12} style={{ textAlign: "right" }}>
+                                    <Typography.Text style={{ fontSize: "16px" }}>
+                                        {new Intl.NumberFormat("vi-VN", {
+                                            style: "currency",
+                                            currency: "VND",
+                                        }).format(totalAmount)}
+                                    </Typography.Text>
+                                </Col>
+                                <Col span={12}>
+                                    <Typography.Text>Tổng cộng:</Typography.Text>
+                                </Col>
+                                <Col span={12} style={{ textAlign: "right" }}>
+                                    <Typography.Text style={{ fontSize: "20px", color: "#ff7a45" }}>
+                                        {new Intl.NumberFormat("vi-VN", {
+                                            style: "currency",
+                                            currency: "VND",
+                                        }).format(totalAmount)}
+                                    </Typography.Text>
+                                </Col>
+                            </Row>
+                            <div style={{ display: "flex", justifyContent: "space-between", marginTop: "20px" }}>
+                                <Button
+                                    type="default"
+                                    style={{
+                                        fontSize: "16px",
+                                        fontWeight: "bold",
+                                        display: "flex",
+                                        alignItems: "center",
+                                    }}
+                                    icon={<ArrowLeftOutlined />}
+                                    onClick={() => setCurrentStep(0)}
+                                >
+                                    Quay Lại
+                                </Button>
+                                <Button
+                                    type="primary"
+                                    disabled={selectedItems.length === 0}
+                                    style={{
+                                        backgroundColor: "#ff7a45",
+                                        borderColor: "#ff7a45",
+                                        fontSize: "16px",
+                                        fontWeight: "bold",
+                                    }}
+                                    onClick={() => {
+                                        handlePlaceOrder();
+                                    }}
+                                >
+                                    Đặt Hàng ({selectedItems.length})
+                                </Button>
+                            </div>
+                        </Form>
+                    </>
                 </Card>
             ),
         },

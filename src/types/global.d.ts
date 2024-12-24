@@ -101,6 +101,7 @@ declare global {
                 quantity: number;
             }
         ]
+        paymentRef?: string;
     }
 
     interface IOrderHistory {
@@ -120,5 +121,7 @@ declare global {
         totalPrice: number;
         createdAt: Date;
         updatedAt: Date;
+        paymentRef?: string;
+        paymentStatus?: string;
     }
 }

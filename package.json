@@ -26,6 +26,7 @@
     "recharts": "^2.15.0",
     "sass": "1.80.4",
     "uuid": "^11.0.3",
+    "uuidv4": "^6.2.13",
     "xlsx": "^0.18.5"
   },
   "devDependencies": {
