@@ -120,6 +120,23 @@ const OrderHistoryPage = () => {
                 }).format(new Date(date))
         },
         {
+            title: "Thanh toán",
+            dataIndex: "paymentRef",
+            key: "paymentRef",
+            render: (status: string) => {
+                let color = "";
+                switch (status) {
+                    case "COD":
+                        color = "red";
+                        break;
+                    default:
+                        color = "green";
+                        break;
+                }
+                return <Tag color={color}>{status}</Tag>
+            }
+        },
+        {
             title: "Trạng thái",
             dataIndex: "paymentStatus",
             key: "paymentStatus",
