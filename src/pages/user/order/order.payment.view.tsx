@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { updatePaymentOrderAPI } from "@/services/order.service";
 
 const PaymentPage = () => {
-    let [searchParams] = useSearchParams();
+    const [searchParams] = useSearchParams();
     const paymentRef = searchParams.get("vn_TxnRef") || "";
     const responseCode = searchParams.get("vnp_ResponseCode") || "";
     const [loading, setLoading] = useState(false);

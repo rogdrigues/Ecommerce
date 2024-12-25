@@ -68,3 +68,15 @@ export const updateUserPasswordAPI = (data: { email: string, oldpass: string, ne
     return axios.put<IBackendRes<IUser>>(`${baseURL}/user/change-password`, data);
 }
 
+export const refreshToken = async () => {
+    try {
+        const response = await axios.get(`${baseURL}/auth/refresh`);
+        if (response && response.data) {
+            return response.data.access_token
+        }
+        return null;
+    } catch (error) {
+        console.error("Error refreshing token:", error);
+        return null;
+    }
+}
