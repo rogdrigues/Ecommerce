@@ -1,11 +1,14 @@
 import { Button, Form, Input, Space, Divider } from 'antd';
 import { useState } from 'react';
 import 'styles/auth.scss';
-import { loginAPI } from '@/services';
+import { loginAPI, loginGoogleAPI } from '@/services';
 import { useNotification } from '@/context/notification.context';
 import { useNavigate } from 'react-router-dom';
 import { Link } from 'react-router-dom';
 import { useAppContext } from '@/context/app.context';
+import { GoogleOutlined } from '@ant-design/icons';
+import { useGoogleLogin } from '@react-oauth/google';
+import axios from 'axios';
 
 const layout = {
     labelCol: { span: 8 },
@@ -62,6 +65,47 @@ const LoginPage = () => {
         }
     };
 
+    const handleGoogleLogin = useGoogleLogin({
+        onSuccess: async (response) => {
+            const { data } = await axios(
+                "https://www.googleapis.com/oauth2/v3/userinfo",
+                {
+                    headers: {
+                        Authorization: `Bearer ${response.access_token}`,
+                    },
+                }
+            )
+
+            if (data && data.email) {
+                const response = await loginGoogleAPI("GOOGLE", data.email);
+
+                if (response && response.data) {
+                    const { user, access_token } = response.data;
+
+                    notificationAPI.success({
+                        message: 'Thành công',
+                        description: 'Đăng nhập thành công!',
+                    });
+
+                    setTimeout(() => {
+                        setIsAuthenticated(true);
+                        setUser(user);
+                        localStorage.setItem('access_token', access_token);
+
+                        navigate('/');
+                    }, 2000);
+                } else {
+                    notificationAPI.error({
+                        message: 'Có lỗi xảy ra',
+                        description: response.message && Array.isArray(response.message) ? response.message[0] : response.message,
+                    });
+                }
+            }
+        },
+        onError: (error) => {
+            console.log("Lỗi đăng nhập Google:", error);
+        },
+    });
 
     return (
         <div className="auth-container">
@@ -107,7 +151,37 @@ const LoginPage = () => {
                     </Space>
                 </Form>
 
-                <Divider orientation="center">OR</Divider>
+                <Divider orientation="center">HOẶC</Divider>
+
+                <Button
+                    className="google-login-button"
+                    block
+                    type="default"
+                    icon={<GoogleOutlined style={{ color: '#FFA500' }} />}
+                    size="large"
+                    onClick={() => handleGoogleLogin()}
+                    style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        borderColor: '#4285F4',
+                        color: '#4285F4',
+                        transition: 'all 0.3s ease',
+                    }}
+                    onMouseEnter={(e) => {
+                        const btn = e.currentTarget;
+                        btn.style.backgroundColor = '#4285F4';
+                        btn.style.color = '#fff';
+                    }}
+                    onMouseLeave={(e) => {
+                        const btn = e.currentTarget;
+                        btn.style.backgroundColor = '#fff';
+                        btn.style.color = '#4285F4';
+                    }}
+                >
+                    Đăng nhập bằng Google
+                </Button>
+
 
                 <div className="auth-footer">
                     Nếu chưa có tài khoản, hãy{' '}
