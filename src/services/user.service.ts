@@ -1,9 +1,20 @@
 import axios from "utils/axios.customize";
-
+import { Mutex } from 'async-mutex';
+const mutex = new Mutex();
 const baseURL = `${import.meta.env.VITE_BACKEND_URL}/api/v1`;
 
 export const loginAPI = (username: string, password: string) => {
     return axios.post<IBackendRes<ILogin>>(`${baseURL}/auth/login`, { username, password });
+}
+
+export const loginGoogleAPI = (type: string, email: string) => {
+    try {
+        return axios.post<IBackendRes<ILogin>>(`${baseURL}/auth/social-media`, { type, email });
+
+    } catch (error) {
+        console.error("Error logging in with Google:", error);
+        return null;
+    }
 }
 
 export const registerAPI = (data: { fullName: string, email: string, password: string, phone: string }) => {
@@ -69,14 +80,16 @@ export const updateUserPasswordAPI = (data: { email: string, oldpass: string, ne
 }
 
 export const refreshToken = async () => {
-    try {
-        const response = await axios.get(`${baseURL}/auth/refresh`);
-        if (response && response.data) {
-            return response.data.access_token
+    return await mutex.runExclusive(async () => {
+        try {
+            const response = await axios.get(`${baseURL}/auth/refresh`);
+            if (response && response.data) {
+                return response.data.access_token
+            }
+            return null;
+        } catch (error) {
+            console.error("Error refreshing token:", error);
+            return null;
         }
-        return null;
-    } catch (error) {
-        console.error("Error refreshing token:", error);
-        return null;
-    }
+    });
 }

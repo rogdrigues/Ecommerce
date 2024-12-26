@@ -1,3 +1,4 @@
+import { GoogleOAuthProvider } from '@react-oauth/google';
 import { AppContextProvider } from './context/app.context';
 import { CartProvider } from './context/cart.context';
 import AppRouter from './router'
@@ -9,7 +10,9 @@ const App = () => {
     <NotificationProvider>
       <AppContextProvider>
         <CartProvider>
-          <AppRouter />
+          <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}>
+            <AppRouter />
+          </GoogleOAuthProvider>
         </CartProvider>
       </AppContextProvider>
     </NotificationProvider>
