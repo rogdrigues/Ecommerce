@@ -7,7 +7,7 @@ const { Title } = Typography;
 const { RangePicker } = DatePicker;
 
 const OrderHistoryPage = () => {
-    const [orders, setOrders] = useState<any>([]);
+    const [orders, setOrders] = useState<IOrderHistory[]>([]);
     const [loading, setLoading] = useState(false);
     const [pagination, setPagination] = useState({
         current: 1,
@@ -17,7 +17,7 @@ const OrderHistoryPage = () => {
     const [searchFilters, setSearchFilters] = useState({
         mainText: "",
         customer: "",
-        dateRange: [],
+        dateRange: [] as string[],
     });
 
     useEffect(() => {
@@ -29,7 +29,7 @@ const OrderHistoryPage = () => {
         try {
             const response = await getOrderHistoryAPI();
             if (response?.data) {
-                setOrders(response.data);
+                setOrders(Array.isArray(response.data) ? response.data : []);
                 setPagination({
                     current,
                     pageSize,

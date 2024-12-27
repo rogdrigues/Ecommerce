@@ -57,7 +57,9 @@ const UserProfile: React.FC<IProps> = ({ openProfile, setOpenProfile }) => {
                     </Typography.Text>
                 </div>
                 <div style={{ position: 'relative', width: 'fit-content' }}>
-                    <Avatar size={100} src={`${import.meta.env.VITE_BACKEND_URL}/images/avatar/${user?.avatar}`} icon={!user.avatar && <UserOutlined />} />
+                    {user && (
+                        <Avatar size={100} src={`${import.meta.env.VITE_BACKEND_URL}/images/avatar/${user.avatar}`} icon={!user.avatar && <UserOutlined />} />
+                    )}
                     <Button
                         type="default"
                         shape="circle"

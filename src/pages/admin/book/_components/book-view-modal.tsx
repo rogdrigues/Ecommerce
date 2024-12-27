@@ -62,7 +62,7 @@ const ViewBook = (props: IProps) => {
                     style={{ objectFit: 'cover', borderRadius: '8px' }}
                 />
 
-                {record.slider?.map((url, index) => (
+                {record.slider?.map((url: string, index: number) => (
                     <Image
                         key={index}
                         width={150}

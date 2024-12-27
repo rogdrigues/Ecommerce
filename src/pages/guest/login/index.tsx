@@ -51,7 +51,7 @@ const LoginPage = () => {
             } else {
                 notificationAPI.error({
                     message: 'Có lỗi xảy ra',
-                    description: response.message && Array.isArray(response.message) ? response.message[0] : response.message,
+                    description: response && response.message && Array.isArray(response.message) ? response.message[0] : response?.message,
                 });
             }
         } catch (err: unknown) {
@@ -98,7 +98,7 @@ const LoginPage = () => {
                 } else {
                     notificationAPI.error({
                         message: 'Có lỗi xảy ra',
-                        description: response.message && Array.isArray(response.message) ? response.message[0] : response.message,
+                        description: response && response.message && Array.isArray(response.message) ? response.message[0] : response?.message,
                     });
                 }
             }
