@@ -6,12 +6,9 @@ import ImportUserModal from '@/pages/admin/user/_components/user-import-modal.ts
 import { getUsersAPI } from '@/services';
 import { CloudDownloadOutlined, ImportOutlined, PlusOutlined, ReloadOutlined, SettingOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
+import { CSVLink } from 'react-csv';
 import UserModal from '@/pages/admin/user/_components/user-form-modal.tsx';
 import UserActions from './user-table-row-actions.tsx';
-
-import { CSVLink as RawCSVLink } from 'react-csv';
-
-const CSVLink = RawCSVLink as any;
 
 const { RangePicker } = DatePicker;
 const { Option } = Select;
@@ -199,12 +196,10 @@ const TableUser = () => {
                         <Button
                             type="default"
                             icon={<CloudDownloadOutlined />}
-                            onClick={() => { }}
                         >
                             <CSVLink
                                 data={data}
-                                filename={`users-${dayjs().format('YYYY-MM-DD')}.csv`}
-                            >
+                                filename={`users-${dayjs().format('YYYY-MM-DD')}.csv`}>
                                 Export
                             </CSVLink>
                         </Button>

@@ -119,6 +119,7 @@ const BookDetail = () => {
         <div className="book-detail-container">
             <div className="book-detail">
                 <div className="book-detail-image">
+                    {/* @ts-ignore */}
                     <ImageGallery
                         items={images}
                         showPlayButton={true}

@@ -7,6 +7,7 @@ import { CloudDownloadOutlined, PlusOutlined, ReloadOutlined, SettingOutlined } 
 import dayjs from 'dayjs';
 import BookActions from '@/pages/admin/book/_components/book-table-row-actions.tsx';
 import BookModal from './book-form-modal';
+import { CSVLink } from 'react-csv';
 
 const { RangePicker } = DatePicker;
 
@@ -103,6 +104,10 @@ const TableBook = () => {
         fetchData(pagination.current!, pagination.pageSize!);
     };
 
+    const handleExportBook = () => {
+        //csv link handle
+    };
+
     return (
         <>
             <section style={{ margin: '16px 0', padding: 16, background: '#fff', borderRadius: 8 }}>
@@ -173,9 +178,13 @@ const TableBook = () => {
                         <Button
                             type="default"
                             icon={<CloudDownloadOutlined />}
-                            onClick={() => { }}
                         >
-                            Export
+                            <CSVLink
+                                data={data}
+                                filename={`users-${dayjs().format('YYYY-MM-DD')}.csv`}>
+                                Export
+                            </CSVLink>
+
                         </Button>
                         <Button
                             type="primary"
