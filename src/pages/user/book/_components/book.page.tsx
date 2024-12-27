@@ -9,7 +9,6 @@ const { TabPane } = Tabs;
 
 const BookPage = () => {
     const [books, setBooks] = useState<any[]>([]);
-    const [activeTab, setActiveTab] = useState('default');
     const [pagination, setPagination] = useState({
         current: 1,
         pageSize: 30,
@@ -58,16 +57,14 @@ const BookPage = () => {
                 query = { sort: '-createdAt' };
         }
         fetchBooks({ ...pagination, current: 1 }, query);
-        setActiveTab(criteria);
-    };
-
+    }
     const handlePageChange = (page: number, pageSize?: number) => {
         const newPagination = { ...pagination, current: page, pageSize: pageSize || pagination.pageSize };
         fetchBooks(newPagination);
     };
 
     const handleApplyFilter = (filters: { category?: string[]; price?: { $gte?: number; $lte?: number } }) => {
-        const query: Record<string, any> = { ...filters };
+        const query: Record<string, string[] | { $gte?: number; $lte?: number }> = { ...filters };
         fetchBooks({ ...pagination, current: 1 }, query);
     };
 

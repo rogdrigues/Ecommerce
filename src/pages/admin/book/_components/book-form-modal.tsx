@@ -113,7 +113,7 @@ const BookModal = (props: IProps) => {
             const res = await fileUploadAPI(file, "book");
 
             if (res && res.data) {
-                const uploadedFile: any = {
+                const uploadedFile: UploadFile = {
                     uid: file.uid,
                     name: res.data.fileUploaded,
                     status: 'done',
