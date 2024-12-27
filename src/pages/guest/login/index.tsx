@@ -94,6 +94,7 @@ const LoginPage = () => {
 
                         navigate('/');
                     }, 2000);
+
                 } else {
                     notificationAPI.error({
                         message: 'Có lỗi xảy ra',
