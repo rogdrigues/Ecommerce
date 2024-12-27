@@ -33,7 +33,7 @@ const UserProfile: React.FC<IProps> = ({ openProfile, setOpenProfile }) => {
                     }
                 );
             }
-        } catch (error) {
+        } catch {
             notification.error(
                 {
                     message: 'Error',
