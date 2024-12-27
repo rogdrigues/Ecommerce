@@ -56,7 +56,7 @@ const BookModal = (props: IProps) => {
             );
 
             setSlider(
-                bookData.slider?.map((url) => ({
+                bookData.slider?.map((url: string) => ({
                     uid: uuidv4(),
                     name: url,
                     status: 'done',

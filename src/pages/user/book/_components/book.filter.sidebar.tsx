@@ -8,10 +8,9 @@ const { Title, Text } = Typography;
 
 interface IFilterProps {
     onApplyFilter: (filters: { category?: string[]; price?: { $gte?: number; $lte?: number } }) => void;
-    onResetFilter: () => void;
 }
 
-const BookFilterSidebar = ({ onApplyFilter, onResetFilter }: IFilterProps) => {
+const BookFilterSidebar = ({ onApplyFilter }: IFilterProps) => {
     const [priceRange, setPriceRange] = useState({ min: "", max: "" });
     const [categories, setCategories] = useState<string[]>([]);
     const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
