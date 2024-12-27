@@ -7,7 +7,6 @@ import {
     MinusCircleOutlined,
     PlusCircleOutlined,
     ShoppingCartOutlined,
-    DollarOutlined,
     LeftOutlined,
     RightOutlined,
 } from "@ant-design/icons";

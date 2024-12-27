@@ -203,7 +203,8 @@ const TableUser = () => {
                         >
                             <CSVLink
                                 data={data}
-                                filename={`users-${dayjs().format('YYYY-MM-DD')}.csv`}>
+                                filename={`users-${dayjs().format('YYYY-MM-DD')}.csv`}
+                            >
                                 Export
                             </CSVLink>
                         </Button>
