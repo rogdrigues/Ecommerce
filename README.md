@@ -14,6 +14,14 @@ This is a simple e-commerce frontend application for managing and selling books.
 ## Live Demo
 You can explore the live demo [here](https://ecommerce-theta-lovat-23.vercel.app).
 
+## Predefined User Accounts
+The application comes with predefined user accounts for testing various roles. Accounts share the same password: **123456**.
+
+| Email                     | Role               |
+|---------------------------|--------------------|
+| admin@gmail.com           | Admin             |
+---
+
 ## Installation
 
 ### Prerequisites
